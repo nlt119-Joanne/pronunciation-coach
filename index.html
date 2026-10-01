@@ -38,6 +38,7 @@ button,select{font-family:inherit}
 .nav button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
 select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
 audio{width:100%;margin-top:10px}
+textarea{width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:15px;font-family:inherit;resize:vertical}
 table{width:100%;border-collapse:collapse;margin-top:8px;font-size:15px}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:center}
 small{color:var(--sub);display:block;margin-top:10px;font-size:12px}
 </style>
@@ -47,7 +48,14 @@ small{color:var(--sub);display:block;margin-top:10px;font-size:12px}
 <h1>🎙️ 英語口說教練</h1>
 <div class="tabs" id="lvs"></div>
 <div class="tabs" id="tabs"></div>
-<div class="card">
+<div class="card" id="ed" hidden>
+  <b>✍️ 貼上或上傳你的英文文章</b>
+  <textarea id="txt" rows="6" placeholder="貼上英文文章（課文、新聞、演講稿、電子郵件…），按「開始練習」會自動分成一句一句，並標出重音、語調與難發音的字。"></textarea>
+  <div class="row"><button class="p" id="go">開始練習</button><button id="fl">📄 上傳 .txt 檔</button><button id="clr">清除</button></div>
+  <input type="file" id="file" accept=".txt,text/plain" hidden>
+  <small>最多會取前 300 句。文章只存在你這支手機的瀏覽器裡，不會上傳到任何地方。Word 或 PDF 請先複製文字再貼上。</small>
+</div>
+<div class="card" id="pc">
   <div class="prog"><span id="cat"></span><span id="pos"></span></div>
   <div class="en" id="en"></div>
   <div class="zh" id="zh"></div>
@@ -64,7 +72,7 @@ small{color:var(--sub);display:block;margin-top:10px;font-size:12px}
   <div class="res" id="res"></div>
 </div>
 <div class="card" id="panel" hidden></div>
-<div class="nav"><button id="prev">← 上一句</button><button id="rand">🔀 隨機</button><button id="next">下一句 →</button></div>
+<div class="nav" id="nv"><button id="prev">← 上一句</button><button id="rand">🔀 隨機</button><button id="next">下一句 →</button></div>
 <select id="jump"></select>
 <small>使用方式：先聽 → 跟著唸 → 錄音回放與原音比較。色塊標示的是重音，要唸得更重更長；箭頭表示句尾語調。語音評分需瀏覽器支援語音辨識（Chrome / Safari），首次使用請允許麥克風。進度會自動儲存在這支手機上。</small>
 </main>
@@ -190,63 +198,75 @@ function build(){
 
   return {sound:{n:"發音",items:sound},into:{n:"語調",items:into},rhythm:{n:"節奏",items:rhythm}};
 }
-function adv(L){
-  const hs=L==="hs",X=s=>s.split(";").map(x=>x.split("|")),cap=s=>s[0].toUpperCase()+s.slice(1);
-  const FW=new Set("a an the of to in on at by for with from and or but that which who whom whose where when while although though as is was were be been being had has have did do does it its this these those he she they we you i his her their our my not no than then so if once whenever whereas even after before until into over under about such".split(" "));
-  const pk=(t,Ls)=>{let q=t,p=0;return Ls.map(n=>{const d=((q%n)+p)%n;p=d;q=Math.floor(q/n);return d})};
-  let A,B,A2,B2,C,J,S,R,F,SEQ;
-  if(hs){
-    A=X("the teacher who lives next door|住在隔壁的老師;the student who won the scholarship|得到獎學金的學生;the girl whom everyone admires|大家都欣賞的女孩;the neighbor whose dog barks all night|整晚狗吠的鄰居;the doctor who treated my grandfather|治療過我爺爺的醫生;the athlete who broke the record|打破紀錄的運動員;the writer whose novel became famous|小說聲名大噪的作家;the man who found the wallet|撿到錢包的男人;the engineer who designed the bridge|設計這座橋的工程師;the coach that I respect most|我最尊敬的教練");
-    B=X("was awarded a prize for outstanding courage|因表現傑出的勇氣而獲獎;was invited to give a speech at the ceremony|受邀在典禮上演講;was praised by everyone in the community|受到社區所有人稱讚;decided to move to a quieter city|決定搬到較安靜的城市;was interviewed by a local newspaper|接受當地報紙訪問;organized a charity event to raise money|籌辦慈善活動來募款;surprised the audience with an unexpected announcement|以意外的宣布讓觀眾驚訝;worked hard until the project was completed|努力工作直到計畫完成;never forgot the advice that changed everything|從未忘記那個改變一切的建議;was grateful for the support of friends|感謝朋友們的支持");
-    A2=X("the book that I borrowed yesterday|我昨天借的書;the movie which we watched last night|我們昨晚看的電影;the bridge that connects the two towns|連接兩個城鎮的橋;the museum where we spent the afternoon|我們待了一下午的博物館;the restaurant that opened last month|上個月開幕的餐廳;the app that helps students study|幫助學生讀書的應用程式;the letter that arrived this morning|今天早上寄到的信;the park where children usually play|孩子們常去玩的公園;the machine that sorts the recycling|分類回收物的機器;the festival which attracts thousands of visitors|吸引數千名遊客的節慶");
-    B2=X("was far more expensive than I expected|比我預期的貴得多;turned out to be surprisingly entertaining|結果出乎意料地有趣;had been closed for several years|已經關閉好幾年;became popular among young people|在年輕人之間變得受歡迎;seemed unnecessarily complicated|似乎複雜得沒必要;was recommended by many critics|受到許多評論家推薦;made the whole neighborhood livelier|讓整個社區更有活力;changed the way people communicated|改變了人們溝通的方式;remained unchanged despite the criticism|儘管受到批評仍維持不變;cost more than anyone had imagined|花費超乎所有人想像");
-    C=X("the weather improved|天氣好轉;the committee reviewed the proposal|委員會審查提案;the audience stopped applauding|觀眾停止鼓掌;everyone had left the building|所有人都離開大樓;the project ran out of money|計畫經費用盡;the rain finally stopped|雨終於停止;nobody expected a result|沒人預期到結果;the manager announced the changes|經理宣布改變;the exam results were released|考試成績公布;the train was delayed|火車誤點");
-    J=[["Although","雖然","，"],["Even though","儘管","，"],["After","在","之後，"],["Before","在","之前，"],["Whenever","每當","，"],["While","當","的時候，"],["Once","一旦","，"]];
-    F=[t=>{const [a,b]=pk(t,[10,10]);return [cap(A[a][0])+" "+B[b][0]+".",A[a][1]+B[b][1]+"。"]},
-       t=>{const [a,b]=pk(t,[10,10]);return [cap(A2[a][0])+" "+B2[b][0]+".",A2[a][1]+B2[b][1]+"。"]},
-       t=>{const [j,c,a,b]=pk(t,[7,10,10,10]);return [`${J[j][0]} ${C[c][0]}, ${A[a][0]} ${B[b][0]}.`,`${J[j][1]}${C[c][1]}${J[j][2]}${A[a][1]}${B[b][1]}。`]},
-       t=>{const [j,c,a,b]=pk(t,[7,10,10,10]);return [`${J[j][0]} ${C[c][0]}, ${A2[a][0]} ${B2[b][0]}.`,`${J[j][1]}${C[c][1]}${J[j][2]}${A2[a][1]}${B2[b][1]}。`]}];
-    SEQ=[2,3,2,3,2,3,2,3,2,3,2,0,1,0,1];
-  }else{
-    A=X("the linguist whose theory transformed the discipline|其理論轉變了該學科的語言學家;the critic who dismissed the novel as derivative|斥該小說為模仿之作的評論家;the committee that scrutinized the controversial hypothesis|審慎檢視這項爭議假說的委員會;the philosopher whose arguments undermine conventional assumptions|其論證動搖傳統假設的哲學家;the historian who reconstructed the medieval economy|重建中世紀經濟的歷史學家;the poet whose verses reflect profound ambivalence|詩句反映深刻矛盾情感的詩人;the translator who preserved the original ambiguity|保留原文模糊性的譯者;the scholar whom colleagues consistently overlooked|同事們一再忽視的學者;the playwright whose reputation had steadily declined|聲望持續下滑的劇作家;the anthropologist who challenged prevailing stereotypes|挑戰主流刻板印象的人類學家");
-    B=X("was nevertheless criticized for disregarding historical context|仍因忽視歷史脈絡而受批評;ultimately reconsidered the assumptions underlying the argument|最終重新思考論證背後的假設;articulated a more nuanced interpretation of the text|闡述了對文本更細膩的詮釋;remained skeptical of any unsubstantiated generalization|對任何缺乏根據的概括仍持懷疑;persuaded the skeptics that the evidence was irrefutable|說服懷疑者證據無可反駁;juxtaposed two seemingly incompatible perspectives|並置兩種看似不相容的觀點;had unwittingly reinforced the very bias that was being condemned|無意間強化了正被譴責的偏見本身;emphasized that interpretation is inevitably subjective|強調詮釋無可避免地帶有主觀性;relinquished the position in order to pursue independent research|為了從事獨立研究而放棄職位;dismissed the objection as fundamentally misguided|斥該異議根本是誤導");
-    C=X("the hypothesis failed to withstand scrutiny|該假說經不起檢驗;the data contradicted earlier findings|數據與先前發現相矛盾;the critics acknowledged its originality|評論家承認其原創性;the debate grew increasingly polarized|辯論日趨兩極化;the evidence proved inconclusive|證據不具決定性;public opinion shifted dramatically|輿論劇烈轉變;the manuscript was finally published|手稿終於出版;the funding was abruptly withdrawn|經費被突然撤回;the regime collapsed unexpectedly|政權意外垮台;the findings were widely disseminated|研究結果被廣泛傳播");
-    J=[["Whereas","儘管","，"],["Notwithstanding the fact that","儘管事實上","，"],["Even though","即使","，"],["Once","一旦","，"],["Whenever","每當","，"]];
-    S=X("the linguist|語言學家;the critic|評論家;the philosopher|哲學家;the historian|歷史學家;the translator|譯者;the scholar|學者");
-    R=X("having dismissed the prevailing paradigm as untenable|在斥主流典範站不住腳之後;having scrutinized the available evidence|在仔細檢視現有證據之後;having been repeatedly misrepresented|在一再被曲解之後;having reconciled the apparent contradictions|在調和表面矛盾之後;having reconsidered the underlying assumptions|在重新思考背後假設之後");
-    F=[t=>{const [a,b]=pk(t,[10,10]);return [cap(A[a][0])+" "+B[b][0]+".",A[a][1]+B[b][1]+"。"]},
-       t=>{const [j,c,a,b]=pk(t,[5,10,10,10]);return [`${J[j][0]} ${C[c][0]}, ${A[a][0]} ${B[b][0]}.`,`${J[j][1]}${C[c][1]}${J[j][2]}${A[a][1]}${B[b][1]}。`]},
-       t=>{const [s,r,b]=pk(t,[6,5,10]);return [`${cap(S[s][0])}, ${R[r][0]}, ${B[b][0]}.`,`${R[r][1]}，${S[s][1]}${B[b][1]}。`]},
-       t=>{const [s,b]=pk(t,[6,10]);return [`It was ${S[s][0]} who ${B[b][0]}.`,`正是${S[s][1]}${B[b][1]}。`]},
-       t=>{const [j,c,s,b]=pk(t,[5,10,6,10]);return [`${J[j][0]} ${C[c][0]}, ${S[s][0]} ${B[b][0]}.`,`${J[j][1]}${C[c][1]}${J[j][2]}${S[s][1]}${B[b][1]}。`]}];
-    SEQ=[1,4,1,2,1,4,1,2,1,4,2,4,0,0,3];
-  }
-  const TT=hs?[[", and everyone in the community kept talking about it for the rest of the week","，而且社區裡的每個人整個星期都一直在談論這件事"],[", but not everybody agreed that it was really worth all the time and effort","，但並非每個人都同意這真的值得花這麼多時間和心力"],[", so people kept asking questions about it long after the whole event had ended","，所以在整個活動結束很久之後，人們仍不斷提出相關的問題"]]
-   :[[", although the broader implications remained largely unexplored for several decades afterward","，儘管其更廣泛的影響在之後數十年間大多未被探究"],[", and the resulting controversy continued to shape scholarly discourse well into the following century","，而由此引發的爭議持續形塑學術論述直到下一個世紀"],[", yet few contemporaries fully appreciated its lasting significance at the time","，然而當時鮮少有同代人充分體會其持久的重要性"]];
-  const cn=[0,0,0,0,0],R3={sound:[],into:[],rhythm:[]},ks=["sound","into","rhythm"];
-  for(let g=0;g<750;g++){
-    const f=SEQ[g%15],k=ks[g%3];let [en,zh]=F[f](cn[f]++),e,tip,ar="";
-    if((en.match(/[A-Za-z']+/g)||[]).length<15){const [te,tz]=TT[g%3];en=en.slice(0,-1)+te+".";zh=zh.slice(0,-1)+tz+"。"}
-    if(k==="rhythm"){e=en.replace(/[A-Za-z']+/g,w=>FW.has(w.toLowerCase())?w:"*"+w+"*");tip="長句節奏：每個內容詞（色塊）一個重音，功能詞（the、of、that、who…）輕而快；逗號處稍作停頓。"}
-    else if(k==="into"){e=en.replace(/([A-Za-z']+)([,.])/g,"*$1*$2");ar=Array((en.match(/,/g)||[]).length).fill("↗").concat("↘").join(" ");tip="逗號處語調上揚並停頓，句尾下降；色塊字是各子句的核心重音。"}
-    else{const m=[];e=en.replace(/[A-Za-z']+/g,w=>!FW.has(w.toLowerCase())&&/th|v|sh|tion|sion|ough|ph/i.test(w)?(m.push(w),"*"+w+"*"):w);
-      tip=(m.length?"重點發音："+[...new Set(m.map(w=>w.toLowerCase()))].slice(0,5).join("、")+"。注意 th、v、-tion、-ough 等音，":"")+"先慢速逐字唸，再連成整句。"}
-    R3[k].push([e,zh,tip,ar]);
-  }
-  const nm={sound:"發音",into:"語調",rhythm:"節奏"},o={};
-  ks.forEach(k=>o[L+"_"+k]={n:nm[k],l:hs?"（高中）":"（大學英文系）",items:R3[k]});
+const FW=new Set("a an the of to in on at by for with from and or but that which who whom whose where when while although though as is was were be been being had has have did do does it its this these those he she they we you i his her their our my not no than then so if once whenever whereas even after before until into over under about such".split(" "));
+function mine(t){
+  const L=t.replace(/\*/g,"").split(/\n+/).flatMap(p=>(p.replace(/\s+/g," ").match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)||[])).map(x=>x.trim()).filter(x=>(x.match(/[A-Za-z']+/g)||[]).length>=3).slice(0,300);
+  const o={my_sound:{n:"發音",l:"（我的文章）",items:[]},my_into:{n:"語調",l:"（我的文章）",items:[]},my_rhythm:{n:"節奏",l:"（我的文章）",items:[]}};
+  L.forEach(en=>{
+    const wc=(en.match(/[A-Za-z']+/g)||[]).length,zh=`第 ${o.my_sound.items.length+1} 句・${wc} 個單字`,m=[];
+    o.my_rhythm.items.push([en.replace(/[A-Za-z']+/g,w=>FW.has(w.toLowerCase())?w:"*"+w+"*"),zh,"節奏：每個內容詞（色塊）一個重音，功能詞（the、of、that、to…）輕而快；逗號處稍作停頓。",""]);
+    const n=(en.match(/[,;:]/g)||[]).length,q=/\?["')\]]*$/.test(en)&&/^(do|does|did|is|are|am|was|were|can|could|will|would|shall|should|may|might|have|has|had)\b/i.test(en);
+    o.my_into.items.push([en.replace(/([A-Za-z']+)([,;:.!?])/g,"*$1*$2"),zh,q?"Yes/No 問句：句尾語調上揚；逗號處稍停。":"逗號處語調上揚並停頓，句尾下降；色塊字是各子句的核心重音。",Array(n).fill("↗").concat(q?"↗":"↘").join(" ")]);
+    const e=en.replace(/[A-Za-z']+/g,w=>!FW.has(w.toLowerCase())&&/th|v|sh|tion|sion|ough|ph/i.test(w)?(m.push(w),"*"+w+"*"):w);
+    o.my_sound.items.push([e,zh,(m.length?"重點發音："+[...new Set(m.map(w=>w.toLowerCase()))].slice(0,5).join("、")+"。注意 th、v、-tion、-ough 等音，":"")+"先慢速逐字唸，再連成整句。",""]);
+  });
   return o;
 }
-const LV={base:build(),hs:adv("hs"),uni:adv("uni")};let D=LV.base,lv="base";
+const TOP={
+base:[
+ ["the old man who lives next door|隔壁的老先生;my younger sister and her best friend|我妹妹和她最好的朋友;our neighbor with the big brown dog|養著大棕狗的鄰居","walked slowly to the park near the river|慢慢走到河邊的公園;stayed at home and watched a long movie|待在家看了一部很長的電影;planned a picnic for the whole family|為全家人計畫了一場野餐","the rain finally stopped|雨終於停了;the wind became much stronger|風變得強很多;the sun came out after lunch|午餐後太陽出來了"],
+ ["the new student from Canada|來自加拿大的新同學;our English teacher with the red bag|拿紅色包包的英文老師;the two boys sitting in the back row|坐在後排的兩個男孩","answered every question in the quiz correctly|正確回答了小考的每一題;forgot to bring the homework to class|忘了把作業帶來上課;stayed after school to clean the classroom|放學後留下來打掃教室","the bell rang at exactly eight o'clock|鐘聲在八點整響起;the exam was much harder than expected|考試比預期的難得多;the principal walked into the room|校長走進教室"],
+ ["my mother in the kitchen|在廚房的媽媽;my uncle from Kaohsiung|從高雄來的叔叔;the two cooks at the small restaurant|小餐廳裡的兩位廚師","made a big pot of soup for everyone|為大家煮了一大鍋湯;tried a new recipe from the internet|試做了網路上的新食譜;cleaned the table before the guests arrived|在客人來之前擦了桌子","the guests arrived earlier than planned|客人比預定時間早到;the oven stopped working suddenly|烤箱突然壞了;the food was almost ready|食物差不多好了"],
+ ["the tired travelers at the station|車站裡疲憊的旅客;our tour guide from Japan|來自日本的導遊;my best friend and her brother|我最好的朋友和她哥哥","bought tickets for the next train to Taipei|買了下一班往台北的火車票;waited patiently for more than an hour|耐心等了一個多小時;took many photos of the beautiful mountains|拍了很多漂亮山景的照片","the train was delayed by the storm|火車因暴風雨誤點;the bus arrived right on time|公車準時抵達;the station became very crowded|車站變得非常擁擠"],
+ ["the manager of the small company|小公司的經理;two engineers from the night shift|夜班的兩位工程師;our new colleague from the sales team|業務部的新同事","finished the report before the meeting started|在會議開始前完成了報告;asked the customers for more detailed feedback|請客戶提供更詳細的意見;worked late to solve the technical problem|加班解決技術問題","the meeting began later than usual|會議比平常晚開始;the customers sent an angry email|客戶寄來一封憤怒的信;the computer system crashed again|電腦系統又當機了"]],
+hs:[
+ ["the volunteer who organized the food drive|籌辦食物募集活動的志工;the retired teacher whom everyone respects|大家都尊敬的退休老師;the young mayor whose plan helped the town|其計畫幫助了小鎮的年輕市長","gave a speech about the importance of kindness|發表了關於善意重要性的演講;was thanked warmly by hundreds of residents|受到數百名居民熱烈感謝;decided to start a new project for the elderly|決定為長者發起新計畫","the heavy storm damaged several old buildings|暴風雨損毀了幾棟老建築;the festival drew thousands of visitors|節慶吸引了數千名遊客;the town received a large donation|小鎮收到一筆巨額捐款"],
+ ["the student who won the science fair|贏得科展的學生;the physics teacher who loves experiments|熱愛實驗的物理老師;the girl whose project impressed the judges|其作品令評審驚豔的女孩","explained the results clearly to the whole class|向全班清楚說明了結果;spent several weeks improving the original design|花了好幾週改進原始設計;was invited to present the idea at the university|受邀在大學發表這個構想","the experiment finally succeeded|實驗終於成功;the school announced the new competition|學校宣布了新的競賽;the funding for the lab was approved|實驗室的經費獲得核准"],
+ ["the athlete who broke the national record|打破全國紀錄的運動員;the coach whom the players trusted|球員們信任的教練;the doctor who treated the injured runner|治療受傷跑者的醫生","recommended a long period of rest and recovery|建議長時間休息與復原;returned to training with great determination|懷著堅定的決心回到訓練;inspired many young people across the country|激勵了全國許多年輕人","the championship began in early spring|錦標賽在初春開始;the team lost the first two games|球隊輸了前兩場比賽;the stadium was completely full|體育場座無虛席"],
+ ["the engineer who designed the new bridge|設計新橋的工程師;the app developer whose software helps students|其軟體幫助學生的應用程式開發者;the city planner who studied traffic problems|研究交通問題的都市規劃師","presented a detailed plan to the city council|向市議會提出了詳細的計畫;worked tirelessly to improve public transportation|不辭辛勞地改善大眾運輸;received an award for creative problem solving|因創意解決問題而獲獎","the old bridge was closed for repairs|舊橋因整修而封閉;the number of commuters increased rapidly|通勤人數快速增加;the city introduced a new bus system|市政府推出新的公車系統"]],
+uni:[
+ ["the novelist whose early work had been ignored|早期作品被忽視的小說家;the critic who reviewed the controversial anthology|評論那本爭議選集的評論家;the translator who preserved the author's distinctive voice|保留作者獨特聲音的譯者","argued that the narrative structure reflected deep social anxieties|主張敘事結構反映了深層的社會焦慮;ultimately revised the interpretation in a subsequent essay|最終在後來的文章中修正了詮釋;was widely praised for an extraordinarily nuanced analysis|因極為細膩的分析而廣受讚譽","the manuscript was published posthumously|手稿在作者過世後出版;the literary establishment remained deeply divided|文學界仍嚴重分歧;the novel received unexpected international attention|這部小說獲得意外的國際關注"],
+ ["the linguist who documented the endangered dialect|記錄瀕危方言的語言學家;the phonologist whose research challenged conventional assumptions|其研究挑戰傳統假設的音韻學家;the lexicographer who compiled the historical dictionary|編纂歷史辭典的詞典編纂者","demonstrated that pronunciation changes reflect broader social patterns|證明發音的變化反映更廣泛的社會模式;was invited to deliver the keynote address at the conference|受邀在研討會發表主題演講;carefully examined the evidence before drawing any conclusions|在下任何結論前仔細檢視了證據","the previous theory failed to explain the data|先前的理論無法解釋這些數據;the funding for fieldwork was finally secured|田野調查的經費終於確定;the debate over standardization intensified|關於標準化的辯論加劇"],
+ ["the historian who reconstructed the medieval economy|重建中世紀經濟的歷史學家;the diplomat who negotiated the controversial treaty|談判那項爭議條約的外交官;the political theorist whose arguments reshaped the debate|其論證重塑辯論的政治理論家","emphasized that institutions evolve gradually rather than abruptly|強調制度是逐步而非突然演變;was criticized for underestimating the role of public opinion|因低估輿論的作用而受批評;persuaded skeptical colleagues to reconsider their assumptions|說服持懷疑態度的同事重新思考其假設","the regime collapsed unexpectedly|政權意外垮台;new archives became available to researchers|研究者得以取得新的檔案;the economic crisis deepened considerably|經濟危機大幅惡化"],
+ ["the psychologist who studied decision making under pressure|研究壓力下決策的心理學家;the philosopher whose essay questioned the nature of free will|其文章質疑自由意志本質的哲學家;the researcher who replicated the original experiment|重複原始實驗的研究者","concluded that intuition is shaped by prior experience|結論認為直覺是由過去經驗塑造的;acknowledged that the findings had significant limitations|承認研究結果有重大限制;proposed a more rigorous methodology for future studies|為未來研究提出了更嚴謹的方法","the results contradicted earlier expectations|結果與先前預期相矛盾;the journal published a critical response|期刊刊登了批判性的回應;the sample size proved insufficient|樣本數證明不足"]]};
+const JJ={hs:[["Although","雖然","，"],["After","在","之後，"],["Before","在","之前，"],["Once","一旦","，"],["Even though","儘管","，"]],
+ uni:[["Although","雖然","，"],["Even though","儘管","，"],["Once","一旦","，"],["After","在","之後，"],["Notwithstanding the fact that","儘管事實上","，"]]};
+function adv2(L){
+  const X=s=>s.split(";").map(x=>x.split("|")),cap=s=>s[0].toUpperCase()+s.slice(1);
+  const pk=(t,Ls)=>{let q=t,p=0;return Ls.map(n=>{const d=((q%n)+p)%n;p=d;q=Math.floor(q/n);return d})};
+  const T=TOP[L].map(t=>t.map(X)),b=L==="base",N=b?500:250,R={sound:[],into:[],rhythm:[]};
+  for(let g=0;g<N;g++){
+    const tp=g%T.length;let en,zh;
+    if(b){const tm=Math.floor(g/5)%4,[s,p,c]=pk(Math.floor(g/20),[3,3,3]),S=T[tp][0][s],P=T[tp][1][p],C=T[tp][2][c],w=tm%2?["but","但"]:["and","而"];
+      if(tm<2){en=`${cap(C[0])}, ${w[0]} ${S[0]} ${P[0]}.`;zh=`${C[1]}，${w[1]}${S[1]}${P[1]}。`}
+      else{en=`${cap(S[0])} ${P[0]}, ${w[0]} ${C[0]}.`;zh=`${S[1]}${P[1]}，${w[1]}${C[1]}。`}
+    }else{const tm=Math.floor(g/4)%2,cn=Math.floor(g/8)%5,[s,p,c]=pk(Math.floor(g/40),[3,3,3]),S=T[tp][0][s],P=T[tp][1][p],C=T[tp][2][c],J=JJ[L][cn];
+      en=tm?`${cap(S[0])} ${P[0]} ${J[0].toLowerCase()} ${C[0]}.`:`${J[0]} ${C[0]}, ${S[0]} ${P[0]}.`;
+      zh=`${J[1]}${C[1]}${J[2]}${S[1]}${P[1]}。`}
+    const m=[];
+    R.rhythm.push([en.replace(/[A-Za-z']+/g,w=>FW.has(w.toLowerCase())?w:"*"+w+"*"),zh,"長句節奏：每個內容詞（色塊）一個重音，功能詞（the、of、that、who…）輕而快；逗號與連接詞前稍作停頓。",""]);
+    R.into.push([en.replace(/([A-Za-z']+)([,.])/g,"*$1*$2"),zh,"逗號處語調上揚並停頓，表示話還沒說完；句尾下降。色塊字是各子句的核心重音。",Array((en.match(/,/g)||[]).length).fill("↗").concat("↘").join(" ")]);
+    const e=en.replace(/[A-Za-z']+/g,w=>!FW.has(w.toLowerCase())&&/th|v|sh|tion|sion|ough|ph/i.test(w)?(m.push(w),"*"+w+"*"):w);
+    R.sound.push([e,zh,(m.length?"重點發音："+[...new Set(m.map(w=>w.toLowerCase()))].slice(0,5).join("、")+"。注意 th、v、-tion、-ough 等音，":"")+"先慢速逐字唸，再連成整句。",""]);
+  }
+  return R;
+}
+const pack=L=>{const R=adv2(L),l=L==="hs"?"（高中）":"（大學英文系）";return {[L+"_sound"]:{n:"發音",l,items:R.sound},[L+"_into"]:{n:"語調",l,items:R.into},[L+"_rhythm"]:{n:"節奏",l,items:R.rhythm}}};
+const LV={base:build(),hs:pack("hs"),uni:pack("uni")};
+{const B=adv2("base");LV.base.into.items=B.into;LV.base.rhythm.items=B.rhythm}let D=LV.base,lv="base",myText="";
 let cat="sound",i=0,rate=0.85,rec=null,chunks=[],done={},sc={};
 const $=id=>document.getElementById(id);
-function save(){try{localStorage.setItem("pc4",JSON.stringify({lv,cat,i,done,sc}))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem("pc4")||"null");if(!s)return;if(LV[s.lv]){lv=s.lv;D=LV[lv]}if(D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1)}done=s.done||{};sc=s.sc||{}}catch(e){}}
+function save(){try{localStorage.setItem("pc5",JSON.stringify({lv,cat,i,done,sc}))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem("pc5")||"null");if(!s)return;if(LV[s.lv]){lv=s.lv;D=LV[lv]}if(D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1)}done=s.done||{};sc=s.sc||{}}catch(e){}}
 function cnt(k){return Object.keys(done).filter(x=>x.startsWith(k)&&done[x]).length}
 function render(){
   const L=D[cat].items,it=L[i];
-  $("lvs").innerHTML=[["base","基礎複合句"],["hs","高中進階"],["uni","大學英文系"]].map(([k,n])=>`<button class="${k===lv?"on":""}" data-l="${k}">${n}</button>`).join("");
+  $("lvs").innerHTML=[["base","基礎複合句"],["hs","高中進階"],["uni","大學英文系"],["my","我的文章"]].map(([k,n])=>`<button class="${k===lv?"on":""}" data-l="${k}">${n}</button>`).join("");
   $("tabs").innerHTML=Object.keys(D).map(k=>`<button class="${k===cat?"on":""}" data-k="${k}">${D[k].n}</button>`).join("");
+  const emp=lv==="my"&&!L.length;
+  $("ed").hidden=lv!=="my";if(lv==="my")$("txt").value=myText;
+  ["pc","nv","jump"].forEach(id=>$(id).hidden=emp);
+  if(emp){save();return}
   $("cat").textContent=`${D[cat].n}練習　已熟練 ${cnt(cat)} / ${L.length}`;$("pos").textContent=(i+1)+" / "+L.length;
   $("en").innerHTML=html(it[0])+(it[3]?`<span class="arrow">${it[3]}</span>`:"");
   $("zh").textContent=it[1];$("tip").textContent="💡 "+it[2];
@@ -298,7 +318,7 @@ $("tabs").onclick=e=>{const k=e.target.dataset.k;if(k){cat=k;i=0;render()}};
 function board(){
   const P=$("panel");let T=0,N=0,A=0;
   let h=`<b>📊 練習成績</b><small style="margin:4px 0 0">每句取「最高分」加總，重複練習只會提高該句分數，不會重複累加。</small><table><tr><th>類別</th><th>已評分</th><th>總分</th><th>平均</th></tr>`;
-  const AL=Object.assign({},LV.base,LV.hs,LV.uni);for(const k in AL){const v=Object.keys(sc).filter(x=>x.startsWith(k));const s=v.reduce((a,x)=>a+sc[x].b,0);A+=v.reduce((a,x)=>a+sc[x].n,0);T+=s;N+=v.length;
+  const AL=Object.assign({},LV.base,LV.hs,LV.uni,LV.my);for(const k in AL){const v=Object.keys(sc).filter(x=>x.startsWith(k));const s=v.reduce((a,x)=>a+sc[x].b,0);A+=v.reduce((a,x)=>a+sc[x].n,0);T+=s;N+=v.length;
     h+=`<tr><td>${AL[k].n}${AL[k].l||""}</td><td>${v.length}/${AL[k].items.length}</td><td>${s}</td><td>${v.length?Math.round(s/v.length):"-"}</td></tr>`}
   const av=N?Math.round(T/N):0;
   h+=`</table><div style="font-size:20px;margin-top:12px">總分：<b>${T}</b> 分</div><div class="zh">已評分 ${N} 句・平均 ${av} 分・累計嘗試 ${A} 次　${av>=90?"🏆 發音達人":av>=75?"🥇 很棒":av>=60?"👍 持續進步":N?"💪 加油":""}</div><div class="row"><button id="rs">🗑 清除成績</button></div>`;
@@ -313,6 +333,15 @@ $("rand").onclick=()=>{i=Math.floor(Math.random()*D[cat].items.length);render()}
 $("jump").onchange=e=>{i=+e.target.value;render()};
 document.querySelector(".speed").onclick=e=>{const r=e.target.dataset.r;if(!r)return;rate=+r;
   document.querySelectorAll(".speed button").forEach(b=>b.classList.toggle("on",b.dataset.r===r))};
+function setMy(t){myText=t;LV.my=mine(t);try{localStorage.setItem("pc4my",t)}catch(e){}
+  [sc,done].forEach(o=>Object.keys(o).forEach(k=>{if(k.startsWith("my_"))delete o[k]}));
+  if(lv==="my"){D=LV.my;cat="my_sound";i=0}render()}
+$("go").onclick=()=>setMy($("txt").value);
+$("clr").onclick=()=>{$("txt").value="";setMy("")};
+$("fl").onclick=()=>$("file").click();
+$("file").onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{$("txt").value=rd.result;setMy(rd.result)};rd.readAsText(f)};
+try{myText=localStorage.getItem("pc4my")||""}catch(e){}
+LV.my=mine(myText);
 load();render();
 </script>
 </body>
