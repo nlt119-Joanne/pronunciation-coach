@@ -38,6 +38,7 @@ button,select{font-family:inherit}
 .nav button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
 select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
 audio{width:100%;margin-top:10px}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:15px}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:center}
 small{color:var(--sub);display:block;margin-top:10px;font-size:12px}
 </style>
 </head>
@@ -56,10 +57,12 @@ small{color:var(--sub);display:block;margin-top:10px;font-size:12px}
     <button id="record">⏺ 錄音比較</button>
     <button id="score">🎯 語音評分</button>
     <button id="done">☆ 標記熟練</button>
+    <button id="board" style="flex-basis:100%">📊 計分（查看總成績）</button>
   </div>
   <audio id="aud" controls hidden></audio>
   <div class="res" id="res"></div>
 </div>
+<div class="card" id="panel" hidden></div>
 <div class="nav"><button id="prev">← 上一句</button><button id="rand">🔀 隨機</button><button id="next">下一句 →</button></div>
 <select id="jump"></select>
 <small>使用方式：先聽 → 跟著唸 → 錄音回放與原音比較。色塊標示的是重音，要唸得更重更長；箭頭表示句尾語調。語音評分需瀏覽器支援語音辨識（Chrome / Safari），首次使用請允許麥克風。進度會自動儲存在這支手機上。</small>
@@ -88,7 +91,17 @@ function build(){
    ["字尾 b/d/g 要有聲音，p/t/k 只收住不爆","cab cap 計程車 帽子;bag back 袋子 背後;card cart 卡片 推車"],
    ["/ɪ/ 嘴放鬆 vs /e/ 嘴稍開","pick peck 挑選 啄;big beg 大的 乞求;pit pet 坑洞 寵物"],
    ["f 上齒咬下唇吹氣 vs p 雙唇爆破","fast past 快的 過去;fine pine 很好 松樹;fork pork 叉子 豬肉"],
-   ["z 聲帶震動 vs s 聲帶不震動","peace peas 和平 豌豆;price prize 價格 獎品;bus buzz 公車 嗡嗡聲;ice eyes 冰塊 眼睛"]
+   ["z 聲帶震動 vs s 聲帶不震動","peace peas 和平 豌豆;price prize 價格 獎品;bus buzz 公車 嗡嗡聲;ice eyes 冰塊 眼睛"],
+   ["/æ/ 嘴張大 vs /ʌ/ 嘴張小而短","bag bug 袋子 蟲;match much 火柴 很多;ankle uncle 腳踝 叔叔;cat cut 貓 切"],
+   ["/ɑː/ 嘴張大拉長 vs /æ/ 短促","heart hat 心臟 帽子;park pack 公園 包裹;hard had 困難的 有(過去式)"],
+   ["/eɪ/ 滑音 vs /e/ 單音","late let 遲到 讓;tale tell 故事 告訴;main men 主要的 男人們;age edge 年齡 邊緣;sale sell 特價 賣"],
+   ["/əʊ/ 嘴形變圓 vs /ɒ/ 或 /ɔː/","coat caught 外套 抓到了;note not 筆記 不;bowl ball 碗 球;low law 低的 法律"],
+   ["/aɪ/ vs /eɪ/ 注意起始嘴形","lie lay 說謊 放置;bike bake 腳踏車 烘焙;high hay 高的 乾草;buy bay 買 海灣;pie pay 派 付錢"],
+   ["p 不震動帶氣 vs b 震動","pear bear 梨子 熊;pin bin 別針 垃圾桶;pride bride 驕傲 新娘;pour bore 倒 使無聊"],
+   ["t 帶氣不震動 vs d 震動","tie die 領帶 死;town down 城鎮 向下;time dime 時間 十分硬幣;tip dip 小費 蘸"],
+   ["k 帶氣不震動 vs g 震動","cold gold 冷的 黃金;came game 來了 遊戲;crew grew 船員 成長;clue glue 線索 膠水"],
+   ["h 要輕輕送氣，不要漏掉","hair air 頭髮 空氣;heat eat 熱 吃;hold old 握住 老的"],
+   ["m 雙唇閉合 vs n 舌尖頂上顎","mine nine 我的 九;met net 遇見 網子;might night 可能 夜晚;map nap 地圖 午睡"]
   ];
   const sound=[];let n=0;
   G.forEach(([t,s])=>s.split(";").forEach(p=>{
@@ -104,13 +117,15 @@ function build(){
   /* ---------- 語調：100 句 ---------- */
   const VP=("like coffee|喜歡咖啡;need help|需要幫忙;live here|住在這裡;speak English|說英文;play tennis|打網球;drive to work|開車上班;love music|愛音樂;want some water|想喝水;know him|認識他;watch movies|看電影;"+
    "study every day|每天讀書;cook dinner|煮晚餐;walk to school|走路上學;read books|看書;work here|在這裡工作;eat breakfast|吃早餐;take the bus|搭公車;enjoy travel|喜歡旅行;have a car|有車;use this app|用這個 App;"+
-   "sing in the shower|在浴室唱歌;wake up early|早起;hate Mondays|討厭星期一;miss home|想家;believe him|相信他;remember my name|記得我的名字;visit your parents|拜訪父母;buy fruit|買水果;wear glasses|戴眼鏡;feel tired|覺得累;make breakfast|做早餐;take photos|拍照;ride a bike|騎腳踏車;learn Chinese|學中文;call home|打電話回家;drink tea|喝茶;write letters|寫信;play games|玩遊戲;go shopping|去逛街;stay up late|熬夜;need more time|需要更多時間;want to leave|想離開;play the piano|彈鋼琴;like fish|喜歡吃魚;understand this|了解這個;trust my advice|相信我的建議;love this job|愛這份工作;like our boss|喜歡我們的老闆;keep a diary|寫日記;make mistakes|犯錯;pay by card|用卡付款;take medicine|吃藥;ride the train|搭火車;ask questions|問問題;share a room|合住一間房;run every morning|每天早上跑步;clean the kitchen|打掃廚房;check the news|看新聞").split(";").map(x=>x.split("|"));
+   "sing in the shower|在浴室唱歌;wake up early|早起;hate Mondays|討厭星期一;miss home|想家;believe him|相信他;remember my name|記得我的名字;visit your parents|拜訪父母;buy fruit|買水果;wear glasses|戴眼鏡;feel tired|覺得累;make breakfast|做早餐;take photos|拍照;ride a bike|騎腳踏車;learn Chinese|學中文;call home|打電話回家;drink tea|喝茶;write letters|寫信;play games|玩遊戲;go shopping|去逛街;stay up late|熬夜;need more time|需要更多時間;want to leave|想離開;play the piano|彈鋼琴;like fish|喜歡吃魚;understand this|了解這個;trust my advice|相信我的建議;love this job|愛這份工作;like our boss|喜歡我們的老闆;keep a diary|寫日記;make mistakes|犯錯;pay by card|用卡付款;take medicine|吃藥;ride the train|搭火車;ask questions|問問題;share a room|合住一間房;run every morning|每天早上跑步;clean the kitchen|打掃廚房;check the news|看新聞;walk the dog|遛狗;tell the truth|說實話;take a nap|午睡;do homework|寫作業;join the club|加入社團;save money|存錢;miss the bus|錯過公車;take a shower|洗澡;brush twice a day|一天刷兩次牙;meet new people|認識新朋友;feel nervous|覺得緊張;say thank you|說謝謝").split(";").map(x=>x.split("|"));
   const into=[];
   VP.forEach(([e,z])=>into.push([nuc(`Do you ${e}?`),`你${z}嗎？`,"Yes/No 問句：句尾語調上揚。","↗"]));
   VP.forEach(([e,z])=>into.push([nuc(`I ${e}.`),`我${z}。`,"陳述句：句尾語調下降，聽起來肯定。","↘"]));
   VP.forEach(([e,z])=>into.push([nuc(`Why do you ${e}?`),`你為什麼${z}？`,"疑問詞問句（Wh-）：語調往下降。","↘"]));
   VP.forEach(([e,z])=>into.push([`You ${e}, don't you?`,`你${z}，對吧？`,"附加問句（確認用）：don't you 語調上揚。","↗"]));
   VP.forEach(([e,z])=>into.push([nuc(`I don't ${e}.`),`我${z.startsWith("有")?"沒有"+z.slice(1):"不"+z}。`,"否定句：don't 要清楚，句尾語調下降。","↘"]));
+  VP.forEach(([e,z])=>into.push([nuc(`How often do you ${e}?`),`你多常${z}？`,"疑問詞問句：重音在 often，句尾語調下降。","↘"]));
+  VP.forEach(([e,z])=>into.push([nuc(`Do you *really* ${e}?`),`你真的${z}嗎？`,"表示驚訝的確認：really 加重，句尾上揚。","↗"]));
   "tea coffee juice 茶 咖啡 果汁;rice noodles soup 米飯 麵條 湯;red blue green 紅色 藍色 綠色;pens pencils markers 原子筆 鉛筆 麥克筆;trains buses taxis 火車 公車 計程車;apples bananas grapes 蘋果 香蕉 葡萄;Monday Tuesday Friday 星期一 星期二 星期五;cats dogs birds 貓 狗 鳥;milk bread eggs 牛奶 麵包 雞蛋;pizza pasta salad 披薩 義大利麵 沙拉"
    .split(";").forEach(p=>{const [a,b,c,x,y,z]=p.split(" ");
     into.push([`Would you like *${a}*, *${b}*, or *${c}*?`,`你想要${x}、${y}還是${z}？`,"列舉選項：前面每項上揚，最後一項下降。","↗ ↗ ↘"])});
@@ -118,12 +133,12 @@ function build(){
   /* ---------- 節奏：100 句 ---------- */
   const rhythm=[];
   const SUB=[["I","我"],["We","我們"],["They","他們"],["You","你"]];
-  const V1=[["want","想"],["need","需要"],["plan","打算"],["try","試著"],["like","喜歡"],["hope","希望"],["forget","忘記"],["have","必須"],["decide","決定"],["prefer","比較喜歡"]];
-  const PR="buy milk 買 牛奶;read book 讀 書;fix car 修 車;call doctor 打電話給 醫生;clean room 打掃 房間;open window 打開 窗戶;wash dishes 清洗 碗盤;paint wall 粉刷 牆壁;visit museum 參觀 博物館;pack bag 收拾 包包;cook rice 煮 米飯;feed cat 餵 貓;send letter 寄 信;lock door 鎖 門;move table 搬 桌子".split(";").map(x=>x.split(" "));
+  const V1=[["want","想"],["need","需要"],["plan","打算"],["try","試著"],["like","喜歡"],["hope","希望"],["forget","忘記"],["have","必須"],["decide","決定"],["prefer","比較喜歡"],["refuse","拒絕"],["promise","答應"],["agree","同意"],["start","開始"]];
+  const PR="buy milk 買 牛奶;read book 讀 書;fix car 修 車;call doctor 打電話給 醫生;clean room 打掃 房間;open window 打開 窗戶;wash dishes 清洗 碗盤;paint wall 粉刷 牆壁;visit museum 參觀 博物館;pack bag 收拾 包包;cook rice 煮 米飯;feed cat 餵 貓;send letter 寄 信;lock door 鎖 門;move table 搬 桌子;bake bread 烤 麵包;water plants 澆 植物;throw trash 丟 垃圾;hang picture 掛 畫;sweep floor 掃 地板".split(";").map(x=>x.split(" "));
   let k=0;
   V1.forEach(([v,vz])=>PR.forEach(([a,b,az,bz])=>{const [s,sz]=SUB[k++%4];
     rhythm.push([`${s} *${v}* to *${a}* the *${b}*.`,`${sz}${vz}${az}${bz}。`,"重音詞（色塊）唸重唸長；to 弱讀成 /tə/，the 弱讀成 /ðə/，快速帶過。",""])}));
-  const V2=[["call","打電話給"],["text","傳訊息給"],["email","寄信給"],["tell","告訴"],["help","幫"],["remind","提醒"],["ask","問"],["visit","拜訪"],["hug","擁抱"],["pay","付錢給"],["write","寫信給"],["thank","感謝"]];
+  const V2=[["call","打電話給"],["text","傳訊息給"],["email","寄信給"],["tell","告訴"],["help","幫"],["remind","提醒"],["ask","問"],["visit","拜訪"],["hug","擁抱"],["pay","付錢給"],["write","寫信給"],["thank","感謝"],["answer","回覆"],["find","找"]];
   const PL=[["*home*","到家"],["*there*","到那裡"],["*back*","回來"],["to *work*","到公司"],["to the *station*","到車站"],["*here*","到這裡"],["to the *airport*","到機場"],["to the *office*","到辦公室"],["to the *hotel*","到飯店"]];
   V2.forEach(([v,vz])=>PL.forEach(([p,pz])=>rhythm.push([`I'll *${v}* you *when* I *get* ${p}.`,`我${pz}後會${vz}你。`,"I'll、you、I 都是輕音，快速帶過；只有色塊字要清楚有力。",""])));
   [["What are you *doing* *tonight*?","你今晚要做什麼？","What are you 縮成「娃嘟有」，重音在 doing 與 tonight。"],
@@ -138,17 +153,17 @@ function build(){
    ["We *should* *leave* before it *rains*.","我們該在下雨前離開。","before it 連在一起快速帶過。"]
   ].forEach(([a,b,c])=>rhythm.push([a,b,c,""]));
 
-  const TM=[["*tonight*","今晚"],["*tomorrow*","明天"],["*today*","今天"],["this *weekend*","這個週末"],["on *Friday*","星期五"],["next *week*","下週"],["this *summer*","今年夏天"],["after *work*","下班後"]];
-  [["What are you *doing*","要做什麼"],["Where are you *going*","要去哪裡"],["Who are you *meeting*","要見誰"],["How are you *feeling*","感覺如何"]]
+  const TM=[["*tonight*","今晚"],["*tomorrow*","明天"],["*today*","今天"],["this *weekend*","這個週末"],["on *Friday*","星期五"],["next *week*","下週"],["this *summer*","今年夏天"],["after *work*","下班後"],["this *morning*","今天早上"],["this *afternoon*","今天下午"],["this *month*","這個月"],["on *Sunday*","星期天"]];
+  [["What are you *doing*","要做什麼"],["Where are you *going*","要去哪裡"],["Who are you *meeting*","要見誰"],["How are you *feeling*","感覺如何"],["What are you *wearing*","要穿什麼"],["What are you *cooking*","要煮什麼"],["Who are you *calling*","要打給誰"]]
    .forEach(([q,zs])=>TM.forEach(([t,tz])=>rhythm.push([`${q} ${t}?`,`你${tz}${zs}？`,"疑問句重音在動詞與時間詞；are you 弱讀連音，輕輕帶過。",""])));
 
   return {sound:{n:"發音",items:sound},into:{n:"語調",items:into},rhythm:{n:"節奏",items:rhythm}};
 }
 const D=build();
-let cat="sound",i=0,rate=0.85,rec=null,chunks=[],done={};
+let cat="sound",i=0,rate=0.85,rec=null,chunks=[],done={},sc={};
 const $=id=>document.getElementById(id);
-function save(){try{localStorage.setItem("pc3",JSON.stringify({cat,i,done}))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem("pc3")||"null");if(s&&D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1);done=s.done||{}}}catch(e){}}
+function save(){try{localStorage.setItem("pc4",JSON.stringify({cat,i,done,sc}))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem("pc4")||"null");if(s&&D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1);done=s.done||{};sc=s.sc||{}}}catch(e){}}
 function cnt(k){return Object.keys(done).filter(x=>x.startsWith(k)&&done[x]).length}
 function render(){
   const L=D[cat].items,it=L[i];
@@ -194,11 +209,22 @@ function score(){
     const out=target.map(w=>{const c=w.toLowerCase().replace(/[^a-z']/g,"");
       const ok=said.includes(c);if(ok)hit++;return `<span class="${ok?"ok":"no"}">${w}</span>`}).join(" ");
     const p=Math.round(hit/target.length*100);
-    $("res").innerHTML=`${out}<br>分數：<b>${p}</b> / 100　${p>=90?"太棒了！🎉":p>=60?"不錯，再試一次！":"慢一點，再聽一次標準發音。"}<br><span style="color:var(--sub);font-size:13px">辨識到：${said.join(" ")}</span>`};
+    const o=sc[cat+i]||{b:0,n:0};o.b=Math.max(o.b,p);o.n++;sc[cat+i]=o;save();if(!$("panel").hidden)board();
+    $("res").innerHTML=`${out}<br>分數：<b>${p}</b> / 100（本句最高 ${o.b}）　${p>=90?"太棒了！🎉":p>=60?"不錯，再試一次！":"慢一點，再聽一次標準發音。"}<br><span style="color:var(--sub);font-size:13px">辨識到：${said.join(" ")}</span>`};
   r.onerror=()=>{$("res").textContent="沒有辨識到聲音，請再試一次並確認麥克風權限。"};
   r.start();
 }
 $("tabs").onclick=e=>{const k=e.target.dataset.k;if(k){cat=k;i=0;render()}};
+function board(){
+  const P=$("panel");let T=0,N=0,A=0;
+  let h=`<b>📊 練習成績</b><small style="margin:4px 0 0">每句取「最高分」加總，重複練習只會提高該句分數，不會重複累加。</small><table><tr><th>類別</th><th>已評分</th><th>總分</th><th>平均</th></tr>`;
+  for(const k in D){const v=Object.keys(sc).filter(x=>x.startsWith(k));const s=v.reduce((a,x)=>a+sc[x].b,0);A+=v.reduce((a,x)=>a+sc[x].n,0);T+=s;N+=v.length;
+    h+=`<tr><td>${D[k].n}</td><td>${v.length}/${D[k].items.length}</td><td>${s}</td><td>${v.length?Math.round(s/v.length):"-"}</td></tr>`}
+  const av=N?Math.round(T/N):0;
+  h+=`</table><div style="font-size:20px;margin-top:12px">總分：<b>${T}</b> 分</div><div class="zh">已評分 ${N} 句・平均 ${av} 分・累計嘗試 ${A} 次　${av>=90?"🏆 發音達人":av>=75?"🥇 很棒":av>=60?"👍 持續進步":N?"💪 加油":""}</div><div class="row"><button id="rs">🗑 清除成績</button></div>`;
+  P.innerHTML=h;$("rs").onclick=()=>{if(confirm("確定清除所有評分紀錄？")){sc={};save();board()}};
+}
+$("board").onclick=()=>{const P=$("panel");P.hidden=!P.hidden;if(!P.hidden)board()};
 $("listen").onclick=speak;$("record").onclick=toggleRec;$("score").onclick=score;
 $("done").onclick=()=>{done[cat+i]=!done[cat+i];render()};
 $("next").onclick=()=>{i=(i+1)%D[cat].items.length;render()};
