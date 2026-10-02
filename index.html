@@ -38,6 +38,7 @@ button,select{font-family:inherit}
 .nav button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
 select{width:100%;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:15px}
 audio{width:100%;margin-top:10px}
+#lvs button{font-size:13px;padding:9px 2px}
 textarea{width:100%;margin-top:8px;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:15px;font-family:inherit;resize:vertical}
 table{width:100%;border-collapse:collapse;margin-top:8px;font-size:15px}td,th{padding:6px;border-bottom:1px solid var(--bd);text-align:center}
 small{color:var(--sub);display:block;margin-top:10px;font-size:12px}
@@ -93,6 +94,7 @@ function mine(t){
     const e=en.replace(/[A-Za-z']+/g,w=>!FW.has(w.toLowerCase())&&/th|v|sh|tion|sion|ough|ph/i.test(w)?(m.push(w),"*"+w+"*"):w);
     o.my_sound.items.push([e,zh,(m.length?"重點發音："+[...new Set(m.map(w=>w.toLowerCase()))].slice(0,5).join("、")+"。注意 th、v、-tion、-ough 等音，":"")+"先慢速逐字唸，再連成整句。",""]);
   });
+  o.my_mix={n:"節奏語調",l:"（我的文章）",items:o.my_rhythm.items.map((x,j)=>[x[0],x[1],"節奏：每個內容詞（色塊）一個重音，功能詞輕而快。語調："+o.my_into.items[j][2],o.my_into.items[j][3]])};delete o.my_rhythm;delete o.my_into;
   return o;
 }
 const TOP={
@@ -126,9 +128,10 @@ function adv2(L){
     const e=en.replace(/[A-Za-z']+/g,w=>!FW.has(w.toLowerCase())&&/th|v|sh|tion|sion|ough|ph/i.test(w)?(m.push(w),"*"+w+"*"):w);
     R.sound.push([e,zh,(m.length?"重點發音："+[...new Set(m.map(w=>w.toLowerCase()))].slice(0,5).join("、")+"。注意 th、v、-tion、-ough 等音，":"")+"先慢速逐字唸，再連成整句。",""]);
   }
-  return R;
+  R.mix=R.rhythm.map((x,j)=>[x[0],x[1],"節奏：每個內容詞（色塊）一個重音，功能詞輕而快。語調：逗號處語調上揚並停頓，句尾下降。",R.into[j][3]]);
+  return {sound:R.sound,mix:R.mix};
 }
-const pack=L=>{const R=adv2(L),l=L==="hs"?"（高中）":"（大學英文系）";return {[L+"_sound"]:{n:"發音",l,items:R.sound},[L+"_into"]:{n:"語調",l,items:R.into},[L+"_rhythm"]:{n:"節奏",l,items:R.rhythm}}};
+const pack=L=>{const R=adv2(L),l=L==="hs"?"（高中）":"（大學英文系）";return {[L+"_sound"]:{n:"發音",l,items:R.sound},[L+"_mix"]:{n:"節奏語調",l,items:R.mix}}};
 const WD=["ambiguous|模稜兩可的|am-BIG-u-ous;comprehensive|全面的|com-pre-HEN-sive;hypothesis|假說|hy-POTH-e-sis;phenomenon|現象|phe-NOM-e-non;paradigm|典範|PAR-a-digm;criterion|準則|cri-TE-ri-on;inevitable|無可避免的|in-EV-i-ta-ble;significant|顯著的|sig-NIF-i-cant;fundamental|基本的|fun-da-MEN-tal;theoretical|理論上的|the-o-RET-i-cal;empirical|實證的|em-PIR-i-cal;subsequent|隨後的|SUB-se-quent;inherent|內在的|in-HER-ent;implication|含意|im-pli-CA-tion;perspective|觀點|per-SPEC-tive",
 "entrepreneur|企業家|en-tre-pre-NEUR;negotiate|談判|ne-GO-ti-ate;acquisition|收購|ac-qui-SI-tion;revenue|營收|REV-e-nue;sustainable|永續的|sus-TAIN-a-ble;infrastructure|基礎建設|IN-fra-struc-ture;inflation|通貨膨脹|in-FLA-tion;bankruptcy|破產|BANK-rupt-cy;collaborate|合作|col-LAB-o-rate;competitive|有競爭力的|com-PET-i-tive;profitable|有利潤的|PROF-it-a-ble;commodity|商品|com-MOD-i-ty;subsidiary|子公司|sub-SID-i-ar-y;lucrative|賺錢的|LU-cra-tive;monopoly|壟斷|mo-NOP-o-ly",
 "antibiotic|抗生素|an-ti-bi-OT-ic;photosynthesis|光合作用|pho-to-SYN-the-sis;chromosome|染色體|CHRO-mo-some;hypothermia|低體溫症|hy-po-THER-mi-a;epidemic|流行病|ep-i-DEM-ic;metabolism|新陳代謝|me-TAB-o-lism;molecule|分子|MOL-e-cule;catalyst|催化劑|CAT-a-lyst;ecosystem|生態系統|E-co-sys-tem;neuroscience|神經科學|NEU-ro-sci-ence;symptom|症狀|SYMP-tom;diagnosis|診斷|di-ag-NO-sis;immunity|免疫力|im-MU-ni-ty;bacteria|細菌|bac-TE-ri-a;radiation|輻射|ra-di-A-tion",
@@ -139,7 +142,17 @@ const WD=["ambiguous|模稜兩可的|am-BIG-u-ous;comprehensive|全面的|com-pr
 "aesthetic|美學的|aes-THET-ic;metaphor|隱喻|MET-a-phor;protagonist|主角|pro-TAG-o-nist;symbolism|象徵主義|SYM-bol-ism;renaissance|文藝復興|ren-ais-SANCE;autobiography|自傳|au-to-bi-OG-ra-phy;literature|文學|LIT-er-a-ture;masterpiece|傑作|MAS-ter-piece;orchestra|管弦樂團|OR-ches-tra;sculpture|雕塑|SCULP-ture;architecture|建築|AR-chi-tec-ture;tradition|傳統|tra-DI-tion;mythology|神話學|my-THOL-o-gy;narrative|敘事|NAR-ra-tive;rhetoric|修辭|RHET-o-ric",
 "thoroughly|徹底地|THOR-ough-ly;rhythm|節奏|RHY-thm;particularly|特別地|par-TIC-u-lar-ly;statistics|統計學|sta-TIS-tics;vocabulary|詞彙|vo-CAB-u-lar-y;conscientious|盡責的|con-sci-EN-tious;miscellaneous|雜項的|mis-cel-LA-ne-ous;necessarily|必然地|nec-es-SAR-i-ly;nevertheless|儘管如此|nev-er-the-LESS;threshold|門檻|THRESH-old;authenticity|真實性|au-then-TIC-i-ty;chronological|按時間順序的|chron-o-LOG-i-cal;anniversary|週年紀念|an-ni-VER-sa-ry;catastrophe|大災難|ca-TAS-tro-phe;simultaneously|同時地|si-mul-TA-ne-ous-ly",
 "analytical|分析的|an-a-LYT-i-cal;participate|參與|par-TIC-i-pate;participation|參與（名詞）|par-tic-i-PA-tion;participant|參與者|par-TIC-i-pant;competent|有能力的|COM-pe-tent;competence|能力|COM-pe-tence;competition|競爭|com-pe-TI-tion;demonstration|示範|dem-on-STRA-tion;organization|組織|or-gan-i-ZA-tion;organism|有機體|OR-gan-ism;communication|溝通|com-mu-ni-CA-tion;communicative|善於溝通的|com-MU-ni-ca-tive;imagine|想像|i-MAG-ine;imagination|想像力|i-mag-i-NA-tion;imaginary|虛構的|i-MAG-i-nar-y"];
-function words(){
+const WDM=["banana|香蕉|ba-NA-na;tomato|番茄|to-MA-to;potato|馬鈴薯|po-TA-to;chocolate|巧克力|CHOC-late;sandwich|三明治|SAND-wich;vegetable|蔬菜|VEG-ta-ble;breakfast|早餐|BREAK-fast;dessert|甜點|de-SERT;coffee|咖啡|COF-fee;orange|柳橙|OR-ange;strawberry|草莓|STRAW-ber-ry;pineapple|鳳梨|PINE-ap-ple;hamburger|漢堡|HAM-bur-ger;spaghetti|義大利麵|spa-GHET-ti;delicious|美味的|de-LI-cious",
+"elephant|大象|EL-e-phant;giraffe|長頸鹿|gi-RAFFE;kangaroo|袋鼠|kan-ga-ROO;butterfly|蝴蝶|BUT-ter-fly;crocodile|鱷魚|CROC-o-dile;penguin|企鵝|PEN-guin;dolphin|海豚|DOL-phin;monkey|猴子|MON-key;rabbit|兔子|RAB-bit;tiger|老虎|TI-ger;squirrel|松鼠|SQUIR-rel;octopus|章魚|OC-to-pus;dinosaur|恐龍|DI-no-saur;parrot|鸚鵡|PAR-rot;turtle|烏龜|TUR-tle",
+"library|圖書館|LI-brar-y;homework|作業|HOME-work;classroom|教室|CLASS-room;dictionary|字典|DIC-tion-ar-y;calendar|日曆|CAL-en-dar;mathematics|數學|math-e-MAT-ics;science|科學|SCI-ence;history|歷史|HIS-to-ry;geography|地理|ge-OG-ra-phy;vocabulary|詞彙|vo-CAB-u-lar-y;examination|考試|ex-am-i-NA-tion;assignment|指定作業|as-SIGN-ment;semester|學期|se-MES-ter;graduate|畢業|GRAD-u-ate;scholarship|獎學金|SCHOL-ar-ship",
+"hospital|醫院|HOS-pi-tal;restaurant|餐廳|RES-tau-rant;supermarket|超級市場|SU-per-mar-ket;museum|博物館|mu-SE-um;airport|機場|AIR-port;bakery|麵包店|BAK-er-y;pharmacy|藥局|PHAR-ma-cy;stadium|體育場|STA-di-um;theater|劇院|THE-a-ter;neighborhood|社區|NEIGH-bor-hood;apartment|公寓|a-PART-ment;bridge|橋|BRIDGE;temple|寺廟|TEM-ple;station|車站|STA-tion;downtown|市中心|down-TOWN",
+"beautiful|美麗的|BEAU-ti-ful;comfortable|舒適的|COM-fort-a-ble;interesting|有趣的|IN-ter-est-ing;important|重要的|im-POR-tant;dangerous|危險的|DAN-ger-ous;embarrassed|尷尬的|em-BAR-rassed;nervous|緊張的|NER-vous;confident|有自信的|CON-fi-dent;exhausted|筋疲力盡的|ex-HAUST-ed;delighted|欣喜的|de-LIGHT-ed;generous|慷慨的|GEN-er-ous;patient|有耐心的|PA-tient;curious|好奇的|CU-ri-ous;ridiculous|荒謬的|ri-DIC-u-lous;wonderful|很棒的|WON-der-ful",
+"remember|記得|re-MEM-ber;understand|了解|un-der-STAND;decide|決定|de-CIDE;explain|解釋|ex-PLAIN;practice|練習|PRAC-tice;recommend|推薦|rec-om-MEND;celebrate|慶祝|CEL-e-brate;discover|發現|dis-COV-er;improve|改善|im-PROVE;organize|組織|OR-gan-ize;apologize|道歉|a-POL-o-gize;appreciate|感激|ap-PRE-ci-ate;communicate|溝通|com-MU-ni-cate;prepare|準備|pre-PARE;introduce|介紹|in-tro-DUCE",
+"yesterday|昨天|YES-ter-day;tomorrow|明天|to-MOR-row;February|二月|FEB-ru-ar-y;Wednesday|星期三|WEDNES-day;schedule|時間表|SCHED-ule;birthday|生日|BIRTH-day;vacation|假期|va-CA-tion;weekend|週末|WEEK-end;appointment|約定|ap-POINT-ment;opportunity|機會|op-por-TU-ni-ty;experience|經驗|ex-PE-ri-ence;information|資訊|in-for-MA-tion;environment|環境|en-VI-ron-ment;community|社群|com-MU-ni-ty;education|教育|ed-u-CA-tion",
+"umbrella|雨傘|um-BREL-la;refrigerator|冰箱|re-FRIG-er-a-tor;television|電視|TEL-e-vi-sion;computer|電腦|com-PU-ter;telephone|電話|TEL-e-phone;camera|相機|CAM-er-a;bicycle|腳踏車|BI-cy-cle;backpack|背包|BACK-pack;wallet|皮夾|WAL-let;toothbrush|牙刷|TOOTH-brush;newspaper|報紙|NEWS-pa-per;envelope|信封|EN-ve-lope;suitcase|行李箱|SUIT-case;calculator|計算機|CAL-cu-la-tor;microphone|麥克風|MI-cro-phone",
+"thousand|一千|THOU-sand;thirsty|口渴的|THIRS-ty;weather|天氣|WEATH-er;brother|兄弟|BROTH-er;together|一起|to-GETH-er;village|村莊|VIL-lage;river|河流|RIV-er;salary|薪水|SAL-a-ry;rural|鄉村的|RUR-al;really|真的|REAL-ly;lovely|可愛的|LOVE-ly;particularly|特別是|par-TIC-u-lar-ly;regularly|定期地|REG-u-lar-ly;thorough|徹底的|THOR-ough;mother|媽媽|MOTH-er",
+"photograph|照片|PHO-to-graph;photographer|攝影師|pho-TOG-ra-pher;photography|攝影|pho-TOG-ra-phy;economy|經濟|e-CON-o-my;economic|經濟的|ec-o-NOM-ic;politics|政治|POL-i-tics;political|政治的|po-LIT-i-cal;politician|政治人物|pol-i-TI-cian;analyze|分析|AN-a-lyze;analysis|分析（名詞）|a-NAL-y-sis;engineer|工程師|en-gi-NEER;volunteer|志工|vol-un-TEER;employee|員工|em-ploy-EE;Japanese|日本人|Jap-a-NESE;Taiwanese|台灣人|Tai-wan-ESE"];
+function words(WD){
   const R={sound:[],into:[],rhythm:[]},cap=s=>s[0].toUpperCase()+s.slice(1),S=[],one=[];
   const Hn=[[/th/i,"th：舌尖輕夾在上下牙之間吹氣"],[/v/i,"v：上齒輕咬下唇並振動聲帶"],[/tion|sion|cian|cious/i,"-tion/-sion/-cian/-cious 發 /ʃ/ 或 /ʃən/，嘴唇微圓"],[/ph/i,"ph 發 /f/，上齒輕咬下唇"],[/ch/i,"ch：爆破帶氣"],[/r/i,"r：舌頭捲起但不碰上顎"],[/l/i,"l：舌尖頂住上顎"]];
   WD.forEach(g=>{
@@ -161,18 +174,23 @@ function words(){
   const RF=[(d,x)=>[`Say "${d}" with strong stress on the ${O[x.k]} syllable, and keep the others short.`,`說「${x.z}」時，第 ${x.k+1} 個音節要重，其他音節要短而輕。`],(d,x)=>[`In "${d}", the ${O[x.k]} syllable is louder, longer, and higher in pitch than the rest.`,`在「${x.z}」中，第 ${x.k+1} 個音節比其他音節更大聲、更長、音高更高。`],(d,x)=>[`Clap ${x.n} ${x.n>1?"times":"time"} for the word "${d}", and clap loudest on the ${O[x.k]} beat.`,`為「${x.z}」拍 ${x.n} 下手，並在第 ${x.k+1} 拍拍得最大聲。`]];
   [0,1,2].forEach(f=>W.slice(0,f<2?150:50).forEach(x=>R.rhythm.push([RF[f](x.d,x)[0],RF[f](x.d,x)[1],R.rhythm[x.i][2],"",RF[f](x.e,x)[0]])));
   R.into=S.concat(one,W.map(x=>[`Did you say "*${x.e}*", or did you say something else?`,`你說的是「${x.z}」，還是說了別的？`,"選擇問句：前半句語調上揚，後半句下降。","↗ ↘"]),W.map(x=>[`Yes, I said "*${x.e}*", and I meant exactly what I said.`,`是的，我說的是「${x.z}」，而且我的意思正是如此。`,"肯定回答：Yes 後稍停，逗號處略上揚，句尾下降。","↗ ↗ ↘"]));
-  return R;
+  const tp=x=>`重音在第 ${x.k+1} 個音節（共 ${x.n} 個）。`;
+  R.mix=W.map((x,j)=>j%2?[`${x.d}.`,x.z+"。",tp(x)+"語調：單字回答，語調下降，表示肯定。","↘",x.e+"."]:[`${x.d}?`,x.z+"？",tp(x)+"語調：單字疑問或確認，語調上揚，表示驚訝或詢問。","↗",x.e+"?"]);
+  for(let t=0;t<W.length;t+=3){const [a,b,c]=W.slice(t,t+3);R.mix.push([`${a.d}, ${b.d}, or ${c.d}?`,`${a.z}、${b.z}還是${c.z}？`,"重音：每個字的大寫音節要重。語調：前面的項目上揚，最後一項下降。","↗ ↗ ↘",`${a.e}, ${b.e}, or ${c.e}?`])}
+  W.forEach(x=>R.mix.push([`Did you say "${x.d}", or did you say something else?`,`你說的是「${x.z}」，還是說了別的？`,tp(x)+"語調：選擇問句，前半句上揚，後半句下降。","↗ ↘",`Did you say "${x.e}", or did you say something else?`]));
+  W.forEach(x=>R.mix.push([`Yes, I said "${x.d}", and I meant exactly what I said.`,`是的，我說的是「${x.z}」，而且我的意思正是如此。`,tp(x)+"語調：Yes 後稍停，逗號處略上揚，句尾下降。","↗ ↗ ↘",`Yes, I said "${x.e}", and I meant exactly what I said.`]));
+  return {sound:R.sound,mix:R.mix};
 }
-const BW=words();
-const LV={base:{sound:{n:"發音",l:"（進階單字）",items:BW.sound},into:{n:"語調",l:"（進階單字）",items:BW.into},rhythm:{n:"重音",l:"（進階單字）",items:BW.rhythm}},hs:pack("hs"),uni:pack("uni")};let D=LV.base,lv="base",myText="";
-let cat="sound",i=0,rate=0.85,rec=null,chunks=[],done={},sc={};
+const mkW=(W,l,p)=>{const B=words(W);return {[p+"_sound"]:{n:"發音",l,items:B.sound},[p+"_mix"]:{n:"節奏語調",l,items:B.mix}}};
+const LV={mid:mkW(WDM,"（中階單字）","mid"),base:mkW(WD,"（進階單字）","adv"),hs:pack("hs"),uni:pack("uni")};let D=LV.mid,lv="mid",myText="";
+let cat="mid_sound",i=0,rate=0.85,rec=null,chunks=[],done={},sc={};
 const $=id=>document.getElementById(id);
-function save(){try{localStorage.setItem("pc7",JSON.stringify({lv,cat,i,done,sc}))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem("pc7")||"null");if(!s)return;if(LV[s.lv]){lv=s.lv;D=LV[lv]}if(D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1)}done=s.done||{};sc=s.sc||{}}catch(e){}}
+function save(){try{localStorage.setItem("pc8",JSON.stringify({lv,cat,i,done,sc}))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem("pc8")||"null");if(!s)return;if(LV[s.lv]){lv=s.lv;D=LV[lv]}if(D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1)}done=s.done||{};sc=s.sc||{}}catch(e){}}
 function cnt(k){return Object.keys(done).filter(x=>x.startsWith(k)&&done[x]).length}
 function render(){
   const L=D[cat].items,it=L[i];
-  $("lvs").innerHTML=[["base","進階單字"],["hs","高中進階"],["uni","大學英文系"],["my","我的文章"]].map(([k,n])=>`<button class="${k===lv?"on":""}" data-l="${k}">${n}</button>`).join("");
+  $("lvs").innerHTML=[["mid","中階單字"],["base","進階單字"],["hs","高中進階"],["uni","大學英文系"],["my","我的文章"]].map(([k,n])=>`<button class="${k===lv?"on":""}" data-l="${k}">${n}</button>`).join("");
   $("tabs").innerHTML=Object.keys(D).map(k=>`<button class="${k===cat?"on":""}" data-k="${k}">${D[k].n}</button>`).join("");
   const emp=lv==="my"&&!L.length;
   $("ed").hidden=lv!=="my";if(lv==="my")$("txt").value=myText;
@@ -230,7 +248,7 @@ $("tabs").onclick=e=>{const k=e.target.dataset.k;if(k){cat=k;i=0;render()}};
 function board(){
   const P=$("panel");let T=0,N=0,A=0;
   let h=`<b>📊 練習成績</b><small style="margin:4px 0 0">每句取「最高分」加總，重複練習只會提高該句分數，不會重複累加。</small><table><tr><th>類別</th><th>已評分</th><th>總分</th><th>平均</th></tr>`;
-  const AL=Object.assign({},LV.base,LV.hs,LV.uni,LV.my);for(const k in AL){const v=Object.keys(sc).filter(x=>x.startsWith(k));const s=v.reduce((a,x)=>a+sc[x].b,0);A+=v.reduce((a,x)=>a+sc[x].n,0);T+=s;N+=v.length;
+  const AL=Object.assign({},LV.mid,LV.base,LV.hs,LV.uni,LV.my);for(const k in AL){const v=Object.keys(sc).filter(x=>x.startsWith(k));const s=v.reduce((a,x)=>a+sc[x].b,0);A+=v.reduce((a,x)=>a+sc[x].n,0);T+=s;N+=v.length;
     h+=`<tr><td>${AL[k].n}${AL[k].l||""}</td><td>${v.length}/${AL[k].items.length}</td><td>${s}</td><td>${v.length?Math.round(s/v.length):"-"}</td></tr>`}
   const av=N?Math.round(T/N):0;
   h+=`</table><div style="font-size:20px;margin-top:12px">總分：<b>${T}</b> 分</div><div class="zh">已評分 ${N} 句・平均 ${av} 分・累計嘗試 ${A} 次　${av>=90?"🏆 發音達人":av>=75?"🥇 很棒":av>=60?"👍 持續進步":N?"💪 加油":""}</div><div class="row"><button id="rs">🗑 清除成績</button></div>`;
