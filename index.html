@@ -81,123 +81,6 @@ const plain=t=>t.replace(/\*/g,"");
 const html=t=>t.replace(/\*(.+?)\*/g,"<b>$1</b>");
 const nuc=s=>s.replace(/(\w+)([?.!]*)$/,"*$1*$2");
 
-function build(){
-  /* ---------- 發音：50 組對比字 × 2 ---------- */
-  const G=[
-   ["/ɪ/ 短而放鬆 vs /iː/ 嘴角拉開拉長","ship sheep 船 羊;bit beat 一點 打敗;live leave 居住 離開;sit seat 坐 座位"],
-   ["/æ/ 嘴張大 vs /e/ 嘴張小","bad bed 壞的 床;pan pen 平底鍋 筆;bat bet 球棒 打賭"],
-   ["/ʌ/ 短促 vs /ɒ/ 嘴圓張開","cup cop 杯子 警察;hut hot 小屋 熱的;luck lock 運氣 鎖"],
-   ["/ʊ/ 短而放鬆 vs /uː/ 嘴唇圓突拉長","full fool 滿的 傻瓜;pull pool 拉 游泳池"],
-   ["l 舌尖頂上顎 vs r 舌頭捲起但不碰上顎","light right 燈 右邊;lock rock 鎖 岩石;long wrong 長的 錯的;glass grass 玻璃杯 草;collect correct 收集 更正;lice rice 蝨子 米飯;alive arrive 活著 到達"],
-   ["th 舌尖夾在牙間吹氣 vs s 舌尖在牙後","think sink 思考 下沉;thank sank 謝謝 沉了;mouth mouse 嘴巴 老鼠;path pass 小路 通過"],
-   ["th /ð/ 舌尖夾在牙間 vs d 舌尖頂牙齦","then den 然後 巢穴;they day 他們 白天"],
-   ["v 上齒咬下唇 vs w 嘴唇圓起","vest west 背心 西方;vine wine 藤蔓 葡萄酒;verse worse 詩句 更糟;vet wet 獸醫 濕的"],
-   ["v 上齒咬下唇 vs b 雙唇爆破","very berry 非常 莓果;vote boat 投票 船;van ban 廂型車 禁令"],
-   ["s 嘴角拉開 vs sh 嘴唇微圓突出","sea she 海 她;save shave 儲存 刮鬍子;sore shore 痠痛 海岸;sign shine 標誌 閃耀"],
-   ["ch 爆破帶氣 vs sh 持續氣流","chair share 椅子 分享;watch wash 手錶 清洗;catch cash 抓住 現金;chop shop 砍 商店"],
-   ["ch 不震動聲帶 vs j 震動聲帶","choke joke 噎住 笑話;cheap jeep 便宜 吉普車;batch badge 一批 徽章"],
-   ["n 舌尖頂上顎 vs ng 舌根頂軟顎","sin sing 罪 唱歌;ran rang 跑了 響了;thin thing 瘦的 東西;win wing 贏 翅膀"],
-   ["字尾 b/d/g 要有聲音，p/t/k 只收住不爆","cab cap 計程車 帽子;bag back 袋子 背後;card cart 卡片 推車"],
-   ["/ɪ/ 嘴放鬆 vs /e/ 嘴稍開","pick peck 挑選 啄;big beg 大的 乞求;pit pet 坑洞 寵物"],
-   ["f 上齒咬下唇吹氣 vs p 雙唇爆破","fast past 快的 過去;fine pine 很好 松樹;fork pork 叉子 豬肉"],
-   ["z 聲帶震動 vs s 聲帶不震動","peace peas 和平 豌豆;price prize 價格 獎品;bus buzz 公車 嗡嗡聲;ice eyes 冰塊 眼睛"],
-   ["/æ/ 嘴張大 vs /ʌ/ 嘴張小而短","bag bug 袋子 蟲;match much 火柴 很多;ankle uncle 腳踝 叔叔;cat cut 貓 切"],
-   ["/ɑː/ 嘴張大拉長 vs /æ/ 短促","heart hat 心臟 帽子;park pack 公園 包裹;hard had 困難的 有(過去式)"],
-   ["/eɪ/ 滑音 vs /e/ 單音","late let 遲到 讓;tale tell 故事 告訴;main men 主要的 男人們;age edge 年齡 邊緣;sale sell 特價 賣"],
-   ["/əʊ/ 嘴形變圓 vs /ɒ/ 或 /ɔː/","coat caught 外套 抓到了;note not 筆記 不;bowl ball 碗 球;low law 低的 法律"],
-   ["/aɪ/ vs /eɪ/ 注意起始嘴形","lie lay 說謊 放置;bike bake 腳踏車 烘焙;high hay 高的 乾草;buy bay 買 海灣;pie pay 派 付錢"],
-   ["p 不震動帶氣 vs b 震動","pear bear 梨子 熊;pin bin 別針 垃圾桶;pride bride 驕傲 新娘;pour bore 倒 使無聊"],
-   ["t 帶氣不震動 vs d 震動","tie die 領帶 死;town down 城鎮 向下;time dime 時間 十分硬幣;tip dip 小費 蘸"],
-   ["k 帶氣不震動 vs g 震動","cold gold 冷的 黃金;came game 來了 遊戲;crew grew 船員 成長;clue glue 線索 膠水"],
-   ["h 要輕輕送氣，不要漏掉","hair air 頭髮 空氣;heat eat 熱 吃;hold old 握住 老的"],
-   ["m 雙唇閉合 vs n 舌尖頂上顎","mine nine 我的 九;met net 遇見 網子;might night 可能 夜晚;map nap 地圖 午睡"]
-  ];
-  const sound=[];let n=0;const SJ=[["I","我"],["She","她"],["They","他們"],["He","他"],["We","我們"],["You","你"],["My friend","我的朋友"]];
-  G.forEach(([t,s])=>s.split(";").forEach(p=>{
-    const [a,b,x,y]=p.split(" "),q=SJ[n%7],e=n++%2===0,u=e?a:b,w=e?b:a,uz=e?x:y,wz=e?y:x,tt="對比練習："+t;
-    sound.push([`${q[0]} said "*${a}*" and then "*${b}*" very slowly, but the others still could not hear any difference, so everybody tried again.`,`${q[1]}把「${x}」和「${y}」說得很慢，但其他人還是聽不出差別，所以大家又試了一次。`,tt,""]);
-    sound.push([`${q[0]} meant "*${u}*" and not "*${w}*", but the listener misunderstood the word, so the whole conversation had to start over.`,`${q[1]}指的是「${uz}」而不是「${wz}」，但聽的人誤解了這個字，所以整段對話必須重來。`,tt,""]);
-    sound.push([`Is it "*${a}*" or "*${b}*" that you want to practice first, because both words sound similar, yet each one has a different meaning?`,`你想先練習「${x}」還是「${y}」，因為這兩個字聽起來很像，但各自的意思不同？`,"選擇問句：第一項上揚，第二項下降。"+t,"↗ ↗ ↘"]);
-    sound.push([`Please say "*${a}*" and then "*${b}*", pause between them, and listen carefully, because the vowel and consonant sounds are not exactly the same.`,`請先說「${x}」再說「${y}」，兩個字之間停一下並仔細聽，因為母音和子音的發音並不完全相同。`,tt,""]);
-    sound.push([`${q[0]} said "*${w}*" three times in a row, but the teacher smiled and explained that it should be "*${u}*" instead.`,`${q[1]}連續說了三次「${wz}」，但老師微笑著解釋說應該是「${uz}」才對。`,tt,""]);
-  }));
-
-  /* ---------- 語調：100 句 ---------- */
-  const VP=("like coffee|喜歡咖啡;need help|需要幫忙;live here|住在這裡;speak English|說英文;play tennis|打網球;drive to work|開車上班;love music|愛音樂;want some water|想喝水;know him|認識他;watch movies|看電影;"+
-   "study every day|每天讀書;cook dinner|煮晚餐;walk to school|走路上學;read books|看書;work here|在這裡工作;eat breakfast|吃早餐;take the bus|搭公車;enjoy travel|喜歡旅行;have a car|有車;use this app|用這個 App;"+
-   "sing in the shower|在浴室唱歌;wake up early|早起;hate Mondays|討厭星期一;miss home|想家;believe him|相信他;remember names|記得名字;visit relatives|拜訪親戚;buy fruit|買水果;wear glasses|戴眼鏡;feel tired|覺得累;make breakfast|做早餐;take photos|拍照;ride a bike|騎腳踏車;learn Chinese|學中文;call home|打電話回家;drink tea|喝茶;write letters|寫信;play games|玩遊戲;go shopping|去逛街;stay up late|熬夜;need more time|需要更多時間;want to leave|想離開;play the piano|彈鋼琴;like fish|喜歡吃魚;understand this|了解這個;trust doctors|相信醫生;love this job|愛這份工作;like our boss|喜歡我們的老闆;keep a diary|寫日記;make mistakes|犯錯;pay by card|用卡付款;take medicine|吃藥;ride the train|搭火車;ask questions|問問題;share a room|合住一間房;run every morning|每天早上跑步;clean the kitchen|打掃廚房;check the news|看新聞;walk the dog|遛狗;tell the truth|說實話;take a nap|午睡;do homework|寫作業;join the club|加入社團;save money|存錢;miss the bus|錯過公車;take a shower|洗澡;brush twice a day|一天刷兩次牙;meet new people|認識新朋友;feel nervous|覺得緊張;say thank you|說謝謝").split(";").map(x=>x.split("|"));
-  const into=[];
-  const SB=[["you","你","do"],["we","我們","do"],["they","他們","do"],["he","他","does"],["she","她","does"]];
-  const ST=[["I","我","do"],["You","你","do"],["We","我們","do"],["They","他們","do"]];
-  const SN=[["I","我","do"],["You","你","do"],["We","我們","do"],["They","他們","do"],["He","他","does"],["She","她","does"]];
-  const Q=a=>a==="do"?"Do":"Does",N=a=>a==="do"?"don't":"doesn't";
-  VP.forEach(([e,z],j)=>{const [s,sz,a]=SB[j%5];into.push([nuc(`${Q(a)} ${s} ${e}?`),`${sz}${z}嗎？`,"Yes/No 問句：句尾語調上揚。","↗"])});
-  VP.forEach(([e,z],j)=>{const [s,sz]=ST[(j+1)%4];into.push([nuc(`${s} ${e}.`),`${sz}${z}。`,"陳述句：句尾語調下降，聽起來肯定。","↘"])});
-  VP.forEach(([e,z],j)=>{const [s,sz,a]=SB[(j+2)%5];into.push([nuc(`Why ${a} ${s} ${e}?`),`${sz}為什麼${z}？`,"疑問詞問句（Wh-）：語調往下降。","↘"])});
-  VP.forEach(([e,z],j)=>{const [s,sz,a]=ST[(j+3)%4];into.push([`${s} ${e}, ${N(a)} ${s==="I"?"I":s.toLowerCase()}?`,`${sz}${z}，對吧？`,"附加問句（確認用）：don't 語調上揚。","↗"])});
-  VP.forEach(([e,z],j)=>{const [s,sz,a]=SN[(j+4)%6];into.push([nuc(`${s} ${N(a)} ${e}.`),`${sz}${z.startsWith("有")?"沒有"+z.slice(1):"不"+z}。`,"否定句：don't / doesn't 要清楚，句尾語調下降。","↘"])});
-  VP.forEach(([e,z],j)=>{const [s,sz,a]=SB[(j+1)%5];into.push([nuc(`How often ${a} ${s} ${e}?`),`${sz}多常${z}？`,"疑問詞問句：重音在 often，句尾語調下降。","↘"])});
-  VP.forEach(([e,z],j)=>{const [s,sz,a]=SB[(j+3)%5];into.push([nuc(`${Q(a)} ${s} *really* ${e}?`),`${sz}真的${z}嗎？`,"表示驚訝的確認：really 加重，句尾上揚。","↗"])});
-  "tea coffee juice 茶 咖啡 果汁;rice noodles soup 米飯 麵條 湯;red blue green 紅色 藍色 綠色;pens pencils markers 原子筆 鉛筆 麥克筆;trains buses taxis 火車 公車 計程車;apples bananas grapes 蘋果 香蕉 葡萄;Monday Tuesday Friday 星期一 星期二 星期五;cats dogs birds 貓 狗 鳥;milk bread eggs 牛奶 麵包 雞蛋;pizza pasta salad 披薩 義大利麵 沙拉"
-   .split(";").forEach(p=>{const [a,b,c,x,y,z]=p.split(" ");
-    into.push([`Would you like *${a}*, *${b}*, or *${c}*?`,`你想要${x}、${y}還是${z}？`,"列舉選項：前面每項上揚，最後一項下降。","↗ ↗ ↘"])});
-
-  /* ---------- 節奏：100 句 ---------- */
-  const rhythm=[];
-  const SUB=[["I","我"],["We","我們"],["They","他們"],["You","你"],["He","他"],["She","她"]];const c3=v=>v==="try"?"tries":v==="have"?"has":v+"s";
-  const V1=[["want","想"],["need","需要"],["plan","打算"],["try","試著"],["like","喜歡"],["hope","希望"],["forget","忘記"],["have","必須"],["decide","決定"],["prefer","比較喜歡"],["refuse","拒絕"],["promise","答應"],["agree","同意"],["start","開始"]];
-  const PR="buy milk 買 牛奶;read book 讀 書;fix car 修 車;call doctor 打電話給 醫生;clean room 打掃 房間;open window 打開 窗戶;wash dishes 清洗 碗盤;paint wall 粉刷 牆壁;visit museum 參觀 博物館;pack bag 收拾 包包;cook rice 煮 米飯;feed cat 餵 貓;send letter 寄 信;lock door 鎖 門;move table 搬 桌子;bake bread 烤 麵包;water plants 澆 植物;throw trash 丟 垃圾;hang picture 掛 畫;sweep floor 掃 地板".split(";").map(x=>x.split(" "));
-  let k=0;
-  V1.forEach(([v,vz])=>PR.forEach(([a,b,az,bz])=>{const j=k++%6,[s,sz]=SUB[j],vv=j>3?c3(v):v;
-    rhythm.push([`${s} *${vv}* to *${a}* the *${b}*.`,`${sz}${vz}${az}${bz}。`,"重音詞（色塊）唸重唸長；to 弱讀成 /tə/，the 弱讀成 /ðə/，快速帶過。",""])}));
-  const V2=[["call","打電話給"],["text","傳訊息給"],["email","寄信給"],["tell","告訴"],["help","幫"],["remind","提醒"],["ask","問"],["visit","拜訪"],["hug","擁抱"],["pay","付錢給"],["write","寫信給"],["thank","感謝"],["answer","回覆"],["find","找"]];
-  const PL=[["*home*","到家"],["*there*","到那裡"],["*back*","回來"],["to *work*","到公司"],["to the *station*","到車站"],["*here*","到這裡"],["to the *airport*","到機場"],["to the *office*","到辦公室"],["to the *hotel*","到飯店"]];
-  const SR=[["I","I'll","我","you","你","get"],["We","We'll","我們","you","你","get"],["They","They'll","他們","you","你","get"],["He","He'll","他","you","你","gets"],["She","She'll","她","you","你","gets"],["You","You'll","你","me","我","get"]];
-  let m=0;
-  V2.forEach(([v,vz])=>PL.forEach(([p,pz])=>{const [s,ll,sz,o,oz,g]=SR[m++%6];rhythm.push([`${ll} *${v}* ${o} *when* ${s==="I"?"I":s.toLowerCase()} *${g}* ${p}.`,`${sz}${pz}後會${vz}${oz}。`,"代名詞與縮寫（I'll、you、he）都是輕音，快速帶過；只有色塊字要清楚有力。",""])}));
-  [["What are you *doing* *tonight*?","你今晚要做什麼？","What are you 縮成「娃嘟有」，重音在 doing 與 tonight。"],
-   ["I *can't* *believe* it's *already* *Friday*.","真不敢相信已經星期五了。","四個重音要均勻，中間的字快速滑過。"],
-   ["He's *got* a *lot* of *work* to *finish*.","他有很多工作要完成。","a、of、to 都是輕音，幾乎聽不清楚。"],
-   ["*Tell* me *what* you *want* to *do*.","告訴我你想做什麼。","want to 常連成 wanna。"],
-   ["She *wants* to *go* to the *store*.","她想去商店。","to、the 弱讀。"],
-   ["Where are you *going* this *weekend*?","你這個週末要去哪裡？","are you 連成「阿有」，輕輕帶過。"],
-   ["I *don't* *know* what to *say*.","我不知道該說什麼。","what to 連成「襪吐」，輕而快。"],
-   ["Can you *give* me a *hand* with *this*?","你可以幫我一下嗎？","Can you 弱讀成「肯玉」。"],
-   ["It's *time* to *go* to *bed*.","該去睡覺了。","兩個 to 都弱讀成 /tə/。"],
-   ["We *should* *leave* before it *rains*.","我們該在下雨前離開。","before it 連在一起快速帶過。"]
-  ].forEach(([a,b,c])=>rhythm.push([a,b,c,""]));
-
-  const TM=[["*tonight*","今晚"],["*tomorrow*","明天"],["*today*","今天"],["this *weekend*","這個週末"],["on *Friday*","星期五"],["next *week*","下週"],["this *summer*","今年夏天"],["after *work*","下班後"],["this *morning*","今天早上"],["this *afternoon*","今天下午"],["this *month*","這個月"],["on *Sunday*","星期天"]];
-  [["What are you *doing*","要做什麼"],["Where are you *going*","要去哪裡"],["Who are you *meeting*","要見誰"],["How are you *feeling*","感覺如何"],["What are you *wearing*","要穿什麼"],["What are you *cooking*","要煮什麼"],["Who are you *calling*","要打給誰"]]
-   .forEach(([q,zs])=>TM.forEach(([t,tz])=>rhythm.push([`${q} ${t}?`,`你${tz}${zs}？`,"疑問句重音在動詞與時間詞；are you 弱讀連音，輕輕帶過。",""])));
-
-  /* ===== 基礎級改為 15 字以上的複合句 ===== */
-  const TY=[
-   [[", or would you rather do something completely different with your friends this afternoon?","，還是你寧願今天下午和朋友做完全不同的事？"],[", or is it just something that you usually do when you feel bored at home?","，還是那只是你在家覺得無聊時通常會做的事？"],[", or have you changed your mind since we last talked about it with everyone yesterday?","，還是自從昨天我們和大家談過之後你改變主意了？"]],
-   [[", but nobody else in the room seemed to notice it until the meeting was almost over.","，但直到會議快結束時，房間裡似乎沒有其他人注意到。"],[", and that is exactly why everyone keeps asking me about it every single day.","，而這正是為什麼大家每天都一直問我這件事。"],[", although I never planned to tell anyone about it until this morning at breakfast.","，雖然我本來沒打算在今天早餐之前告訴任何人。"]],
-   [[", and what do you think would happen if everyone in the world did the same thing?","，你覺得如果全世界的人都這樣做會發生什麼事？"],[", and has anyone ever explained the real reason to you clearly and honestly?","，有沒有人曾經清楚而誠實地向你解釋真正的原因？"],[", or is there another reason that you have not mentioned to anyone until now?","，還是有另一個你到現在都沒對任何人提過的原因？"]],
-   [[", so why did nobody tell me about it before the meeting started last week?","，那為什麼上週會議開始前沒有人告訴我這件事？"],[", or am I misunderstanding what everyone has been saying about it lately?","，還是我誤解了大家最近對這件事的說法？"]],
-   null,
-   [[", and what usually makes the biggest difference in the end for everyone involved?","，到最後什麼通常對所有相關的人影響最大？"],[", or does it depend entirely on how busy the week becomes for the whole family?","，還是這完全取決於這一週對全家人來說有多忙？"]],
-   [[", or are you only saying that to be polite to everyone who is here today?","，還是你只是為了對今天在場的每個人客氣才這麼說？"],[", or did you change your mind after hearing what all the others said yesterday?","，還是你聽了其他人昨天說的話之後改變了主意？"]]
-  ];
-  TY[4]=TY[1];
-  const TP=["選擇問句：前半（第一個選項）語調上揚，後半下降；色塊是核心重音。","並列句：連接詞前稍停，前半句尾略上揚表示話還沒說完，句尾下降。","疑問詞問句：整體語調偏下降，逗號處稍作停頓。","附加問句：don't you 語調上揚，後半句句尾下降。","否定並列句：don't / doesn't 要清楚，句尾語調下降。","疑問詞問句：重音在 often，逗號處稍停，句尾下降。","驚訝的確認：really 加重，後半句的選擇問句下降。"];
-  const arr=s=>Array((s.match(/,/g)||[]).length).fill("↗").concat("↘").join(" ");
-  const mk=s=>s.replace(/([A-Za-z']+)(,)/g,"*$1*$2").replace(/([A-Za-z']+)([?.])$/,"*$1*$2");
-  into.forEach((x,j)=>{
-    if(j<490){const ty=Math.floor(j/70),P=TY[ty],[te,tz]=P[(j%70+ty)%P.length];x[0]=mk(x[0].slice(0,-1)+te);x[1]=x[1].slice(0,-1)+tz;x[2]=TP[ty]}
-    else{x[0]=mk(x[0].slice(0,-1)+" with your meal tonight, or would you rather wait until everyone has finally arrived?");x[1]=x[1].slice(0,-1)+"配今晚的餐點，還是你寧願等到大家終於到齊再說？";x[2]="長列舉問句：列舉項目逐項上揚，最後一項與句尾下降。"}
-    x[3]=arr(x[0]);
-  });
-  const TL=[[", but the *weather* is *getting* *worse*, so we should *hurry* before it *gets* *dark*","，但天氣越來越糟，所以我們應該在天黑前趕快行動"],[", and everyone *agrees* that it would be *better* to *finish* it before *tomorrow* *morning*","，而且大家都同意最好在明天早上之前完成"],[", yet nobody *remembers* *exactly* *when* the *plan* was *first* *discussed* in the *meeting*","，然而沒有人確切記得這個計畫是什麼時候在會議中第一次討論的"],[", so we *asked* a *few* *friends* to *help* us *whenever* they *have* *time* this *week*","，所以我們請幾位朋友這星期有空時來幫忙"],[", but it *costs* more *money* than we *planned* to *spend* this *month* on *anything* *else*","，但它花的錢比我們這個月計畫花在其他事情上的還多"],[", and then we can *relax* *together* while the *others* *finish* the *rest* of the *work*","，然後我們就可以一起放鬆，讓其他人完成剩下的工作"]];
-  const TQ=[[", and would you *like* to *join* us for *dinner* if you are *free* *afterward*","，如果之後有空，你要不要和我們一起吃晚餐"],[", or should we *call* you *again* when *everything* is *ready* for the *party*","，還是準備好派對後我們再打電話給你"],[", and do you *think* we should *invite* the *others* to *come* *along*","，你覺得我們要不要邀請其他人一起來"]];
-  const HAND=[["I *can't* *believe* it's *already* *Friday*, but I *still* have a *lot* of *work* to *finish* before the *weekend*.","真不敢相信已經星期五了，但週末前我還有很多工作要完成。"],["She *wants* to *go* to the *store*, but the *rain* is *getting* *heavier*, so she *decided* to *wait* a little *longer*.","她想去商店，但雨越下越大，所以她決定再多等一會兒。"],["*Tell* me *what* you *want* to *do*, and I will *try* my *best* to *make* it *happen* before the *end* of the *month*.","告訴我你想做什麼，我會盡全力在這個月底前讓它實現。"],["Where are you *going* this *weekend*, and who is *coming* with you if the *weather* stays *nice* and *warm*?","你這個週末要去哪裡？如果天氣一直又好又暖，誰會跟你一起去？"],["I *don't* *know* what to *say*, but I *promise* that I will *call* you as *soon* as I *understand* *everything*.","我不知道該說什麼，但我保證一旦我完全了解就會打電話給你。"],["Can you *give* me a *hand* with *this*, or should I *ask* someone *else* who has more *experience* with these *machines*?","你可以幫我一下嗎？還是我該問更有這類機器經驗的其他人？"],["It's *time* to *go* to *bed*, but the *kids* are *still* *talking* about the *story* they *heard* at *school* today.","該去睡覺了，但孩子們還在談論今天在學校聽到的故事。"],["We *should* *leave* before it *rains*, because the *road* *gets* *slippery* and the *traffic* is *always* *terrible* after *dark*.","我們該在下雨前離開，因為路面會變滑，而且天黑後交通總是很糟。"],["He's *got* a *lot* of *work* to *finish*, so he *won't* *join* us *tonight*, but he *promised* to *come* next *time*.","他有很多工作要完成，所以今晚不會加入我們，但他答應下次會來。"],["What are you *doing* *tonight*, and would you *like* to *join* us for *dinner* if you are *free* *afterward*?","你今晚要做什麼？如果之後有空，要不要和我們一起吃晚餐？"]];
-  rhythm.forEach((x,j)=>{if(j>=406&&j<416)return;const q=j>=416,[te,tz]=(q?TQ:TL)[j%(q?3:6)];x[0]=x[0].slice(0,-1)+te+(q?"?":".");x[1]=x[1].slice(0,-1)+tz+(q?"？":"。");x[2]+=" 長複合句：and、but、so 前稍作停頓。"});
-  rhythm.splice(406,10,...HAND.map(([a,b])=>[a,b,"長複合句：色塊是重音，其餘輕讀；逗號和連接詞前稍作停頓。",""]));
-
-  return {sound:{n:"發音",items:sound},into:{n:"語調",items:into},rhythm:{n:"節奏",items:rhythm}};
-}
 const FW=new Set("a an the of to in on at by for with from and or but that which who whom whose where when while although though as is was were be been being had has have did do does it its this these those he she they we you i his her their our my not no than then so if once whenever whereas even after before until into over under about such".split(" "));
 function mine(t){
   const L=t.replace(/\*/g,"").split(/\n+/).flatMap(p=>(p.replace(/\s+/g," ").match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)||[])).map(x=>x.trim()).filter(x=>(x.match(/[A-Za-z']+/g)||[]).length>=3).slice(0,300);
@@ -213,12 +96,6 @@ function mine(t){
   return o;
 }
 const TOP={
-base:[
- ["the old man who lives next door|隔壁的老先生;my younger sister and her best friend|我妹妹和她最好的朋友;our neighbor with the big brown dog|養著大棕狗的鄰居","walked slowly to the park near the river|慢慢走到河邊的公園;stayed at home and watched a long movie|待在家看了一部很長的電影;planned a picnic for the whole family|為全家人計畫了一場野餐","the rain finally stopped|雨終於停了;the wind became much stronger|風變得強很多;the sun came out after lunch|午餐後太陽出來了"],
- ["the new student from Canada|來自加拿大的新同學;our English teacher with the red bag|拿紅色包包的英文老師;the two boys sitting in the back row|坐在後排的兩個男孩","answered every question in the quiz correctly|正確回答了小考的每一題;forgot to bring the homework to class|忘了把作業帶來上課;stayed after school to clean the classroom|放學後留下來打掃教室","the bell rang at exactly eight o'clock|鐘聲在八點整響起;the exam was much harder than expected|考試比預期的難得多;the principal walked into the room|校長走進教室"],
- ["my mother in the kitchen|在廚房的媽媽;my uncle from Kaohsiung|從高雄來的叔叔;the two cooks at the small restaurant|小餐廳裡的兩位廚師","made a big pot of soup for everyone|為大家煮了一大鍋湯;tried a new recipe from the internet|試做了網路上的新食譜;cleaned the table before the guests arrived|在客人來之前擦了桌子","the guests arrived earlier than planned|客人比預定時間早到;the oven stopped working suddenly|烤箱突然壞了;the food was almost ready|食物差不多好了"],
- ["the tired travelers at the station|車站裡疲憊的旅客;our tour guide from Japan|來自日本的導遊;my best friend and her brother|我最好的朋友和她哥哥","bought tickets for the next train to Taipei|買了下一班往台北的火車票;waited patiently for more than an hour|耐心等了一個多小時;took many photos of the beautiful mountains|拍了很多漂亮山景的照片","the train was delayed by the storm|火車因暴風雨誤點;the bus arrived right on time|公車準時抵達;the station became very crowded|車站變得非常擁擠"],
- ["the manager of the small company|小公司的經理;two engineers from the night shift|夜班的兩位工程師;our new colleague from the sales team|業務部的新同事","finished the report before the meeting started|在會議開始前完成了報告;asked the customers for more detailed feedback|請客戶提供更詳細的意見;worked late to solve the technical problem|加班解決技術問題","the meeting began later than usual|會議比平常晚開始;the customers sent an angry email|客戶寄來一封憤怒的信;the computer system crashed again|電腦系統又當機了"]],
 hs:[
  ["the volunteer who organized the food drive|籌辦食物募集活動的志工;the retired teacher whom everyone respects|大家都尊敬的退休老師;the young mayor whose plan helped the town|其計畫幫助了小鎮的年輕市長","gave a speech about the importance of kindness|發表了關於善意重要性的演講;was thanked warmly by hundreds of residents|受到數百名居民熱烈感謝;decided to start a new project for the elderly|決定為長者發起新計畫","the heavy storm damaged several old buildings|暴風雨損毀了幾棟老建築;the festival drew thousands of visitors|節慶吸引了數千名遊客;the town received a large donation|小鎮收到一筆巨額捐款"],
  ["the student who won the science fair|贏得科展的學生;the physics teacher who loves experiments|熱愛實驗的物理老師;the girl whose project impressed the judges|其作品令評審驚豔的女孩","explained the results clearly to the whole class|向全班清楚說明了結果;spent several weeks improving the original design|花了好幾週改進原始設計;was invited to present the idea at the university|受邀在大學發表這個構想","the experiment finally succeeded|實驗終於成功;the school announced the new competition|學校宣布了新的競賽;the funding for the lab was approved|實驗室的經費獲得核准"],
@@ -234,7 +111,7 @@ const JJ={hs:[["Although","雖然","，"],["After","在","之後，"],["Before",
 function adv2(L){
   const X=s=>s.split(";").map(x=>x.split("|")),cap=s=>s[0].toUpperCase()+s.slice(1);
   const pk=(t,Ls)=>{let q=t,p=0;return Ls.map(n=>{const d=((q%n)+p)%n;p=d;q=Math.floor(q/n);return d})};
-  const T=TOP[L].map(t=>t.map(X)),b=L==="base",N=b?500:250,R={sound:[],into:[],rhythm:[]};
+  const T=TOP[L].map(t=>t.map(X)),b=L==="base",N=500,R={sound:[],into:[],rhythm:[]};
   for(let g=0;g<N;g++){
     const tp=g%T.length;let en,zh;
     if(b){const tm=Math.floor(g/5)%4,[s,p,c]=pk(Math.floor(g/20),[3,3,3]),S=T[tp][0][s],P=T[tp][1][p],C=T[tp][2][c],w=tm%2?["but","但"]:["and","而"];
@@ -252,16 +129,50 @@ function adv2(L){
   return R;
 }
 const pack=L=>{const R=adv2(L),l=L==="hs"?"（高中）":"（大學英文系）";return {[L+"_sound"]:{n:"發音",l,items:R.sound},[L+"_into"]:{n:"語調",l,items:R.into},[L+"_rhythm"]:{n:"節奏",l,items:R.rhythm}}};
-const LV={base:build(),hs:pack("hs"),uni:pack("uni")};
-{const B=adv2("base");LV.base.into.items=B.into;LV.base.rhythm.items=B.rhythm}let D=LV.base,lv="base",myText="";
+const WD=["ambiguous|模稜兩可的|am-BIG-u-ous;comprehensive|全面的|com-pre-HEN-sive;hypothesis|假說|hy-POTH-e-sis;phenomenon|現象|phe-NOM-e-non;paradigm|典範|PAR-a-digm;criterion|準則|cri-TE-ri-on;inevitable|無可避免的|in-EV-i-ta-ble;significant|顯著的|sig-NIF-i-cant;fundamental|基本的|fun-da-MEN-tal;theoretical|理論上的|the-o-RET-i-cal;empirical|實證的|em-PIR-i-cal;subsequent|隨後的|SUB-se-quent;inherent|內在的|in-HER-ent;implication|含意|im-pli-CA-tion;perspective|觀點|per-SPEC-tive",
+"entrepreneur|企業家|en-tre-pre-NEUR;negotiate|談判|ne-GO-ti-ate;acquisition|收購|ac-qui-SI-tion;revenue|營收|REV-e-nue;sustainable|永續的|sus-TAIN-a-ble;infrastructure|基礎建設|IN-fra-struc-ture;inflation|通貨膨脹|in-FLA-tion;bankruptcy|破產|BANK-rupt-cy;collaborate|合作|col-LAB-o-rate;competitive|有競爭力的|com-PET-i-tive;profitable|有利潤的|PROF-it-a-ble;commodity|商品|com-MOD-i-ty;subsidiary|子公司|sub-SID-i-ar-y;lucrative|賺錢的|LU-cra-tive;monopoly|壟斷|mo-NOP-o-ly",
+"antibiotic|抗生素|an-ti-bi-OT-ic;photosynthesis|光合作用|pho-to-SYN-the-sis;chromosome|染色體|CHRO-mo-some;hypothermia|低體溫症|hy-po-THER-mi-a;epidemic|流行病|ep-i-DEM-ic;metabolism|新陳代謝|me-TAB-o-lism;molecule|分子|MOL-e-cule;catalyst|催化劑|CAT-a-lyst;ecosystem|生態系統|E-co-sys-tem;neuroscience|神經科學|NEU-ro-sci-ence;symptom|症狀|SYMP-tom;diagnosis|診斷|di-ag-NO-sis;immunity|免疫力|im-MU-ni-ty;bacteria|細菌|bac-TE-ri-a;radiation|輻射|ra-di-A-tion",
+"legislation|立法|leg-is-LA-tion;jurisdiction|管轄權|ju-ris-DIC-tion;constitution|憲法|con-sti-TU-tion;bureaucracy|官僚體制|bu-REAU-cra-cy;controversial|有爭議的|con-tro-VER-sial;discrimination|歧視|dis-crim-i-NA-tion;sovereignty|主權|SOV-er-eign-ty;diplomatic|外交的|dip-lo-MAT-ic;referendum|公民投票|ref-er-EN-dum;hierarchy|階層制度|HI-er-ar-chy;democracy|民主|de-MOC-ra-cy;immigration|移民|im-mi-GRA-tion;parliament|議會|PAR-lia-ment;ideology|意識形態|i-de-OL-o-gy;legitimate|合法的|le-GIT-i-mate",
+"meticulous|一絲不苟的|me-TIC-u-lous;reluctant|不情願的|re-LUC-tant;ambitious|有野心的|am-BI-tious;skeptical|懷疑的|SKEP-ti-cal;resilient|有韌性的|re-SIL-ient;sophisticated|精密複雜的|so-PHIS-ti-cat-ed;nostalgic|懷舊的|nos-TAL-gic;indifferent|漠不關心的|in-DIF-fer-ent;eloquent|雄辯的|EL-o-quent;arrogant|傲慢的|AR-ro-gant;humble|謙虛的|HUM-ble;sympathetic|同情的|sym-pa-THET-ic;vulnerable|脆弱的|VUL-ner-a-ble;enthusiastic|熱情的|en-thu-si-AS-tic;pessimistic|悲觀的|pes-si-MIS-tic",
+"accommodate|容納|ac-COM-mo-date;alleviate|減輕|al-LE-vi-ate;contemplate|深思|CON-tem-plate;demonstrate|證明|DEM-on-strate;exaggerate|誇大|ex-AG-ger-ate;facilitate|促進|fa-CIL-i-tate;hesitate|猶豫|HES-i-tate;illustrate|說明|IL-lus-trate;manipulate|操縱|ma-NIP-u-late;overcome|克服|o-ver-COME;postpone|延期|post-PONE;reinforce|強化|re-in-FORCE;scrutinize|仔細檢查|SCRU-ti-nize;undermine|削弱|un-der-MINE;withdraw|撤回|with-DRAW",
+"biodiversity|生物多樣性|bi-o-di-VER-si-ty;deforestation|森林砍伐|de-for-es-TA-tion;renewable|可再生的|re-NEW-a-ble;atmosphere|大氣層|AT-mos-phere;conservation|保育|con-ser-VA-tion;pollution|污染|pol-LU-tion;extinction|滅絕|ex-TINC-tion;glacier|冰河|GLA-cier;hemisphere|半球|HEM-i-sphere;irrigation|灌溉|ir-ri-GA-tion;drought|乾旱|DROUGHT;habitat|棲息地|HAB-i-tat;earthquake|地震|EARTH-quake;vegetation|植被|veg-e-TA-tion;temperature|溫度|TEM-per-a-ture",
+"aesthetic|美學的|aes-THET-ic;metaphor|隱喻|MET-a-phor;protagonist|主角|pro-TAG-o-nist;symbolism|象徵主義|SYM-bol-ism;renaissance|文藝復興|ren-ais-SANCE;autobiography|自傳|au-to-bi-OG-ra-phy;literature|文學|LIT-er-a-ture;masterpiece|傑作|MAS-ter-piece;orchestra|管弦樂團|OR-ches-tra;sculpture|雕塑|SCULP-ture;architecture|建築|AR-chi-tec-ture;tradition|傳統|tra-DI-tion;mythology|神話學|my-THOL-o-gy;narrative|敘事|NAR-ra-tive;rhetoric|修辭|RHET-o-ric",
+"thoroughly|徹底地|THOR-ough-ly;rhythm|節奏|RHY-thm;particularly|特別地|par-TIC-u-lar-ly;statistics|統計學|sta-TIS-tics;vocabulary|詞彙|vo-CAB-u-lar-y;conscientious|盡責的|con-sci-EN-tious;miscellaneous|雜項的|mis-cel-LA-ne-ous;necessarily|必然地|nec-es-SAR-i-ly;nevertheless|儘管如此|nev-er-the-LESS;threshold|門檻|THRESH-old;authenticity|真實性|au-then-TIC-i-ty;chronological|按時間順序的|chron-o-LOG-i-cal;anniversary|週年紀念|an-ni-VER-sa-ry;catastrophe|大災難|ca-TAS-tro-phe;simultaneously|同時地|si-mul-TA-ne-ous-ly",
+"analytical|分析的|an-a-LYT-i-cal;participate|參與|par-TIC-i-pate;participation|參與（名詞）|par-tic-i-PA-tion;participant|參與者|par-TIC-i-pant;competent|有能力的|COM-pe-tent;competence|能力|COM-pe-tence;competition|競爭|com-pe-TI-tion;demonstration|示範|dem-on-STRA-tion;organization|組織|or-gan-i-ZA-tion;organism|有機體|OR-gan-ism;communication|溝通|com-mu-ni-CA-tion;communicative|善於溝通的|com-MU-ni-ca-tive;imagine|想像|i-MAG-ine;imagination|想像力|i-mag-i-NA-tion;imaginary|虛構的|i-MAG-i-nar-y"];
+function words(){
+  const R={sound:[],into:[],rhythm:[]},cap=s=>s[0].toUpperCase()+s.slice(1),S=[],one=[];
+  const Hn=[[/th/i,"th：舌尖輕夾在上下牙之間吹氣"],[/v/i,"v：上齒輕咬下唇並振動聲帶"],[/tion|sion|cian|cious/i,"-tion/-sion/-cian/-cious 發 /ʃ/ 或 /ʃən/，嘴唇微圓"],[/ph/i,"ph 發 /f/，上齒輕咬下唇"],[/ch/i,"ch：爆破帶氣"],[/r/i,"r：舌頭捲起但不碰上顎"],[/l/i,"l：舌尖頂住上顎"]];
+  WD.forEach(g=>{
+    const w=g.split(";").map(x=>x.split("|"));
+    w.forEach(([e,z,y],j)=>{
+      const sy=y.split("-"),k=sy.findIndex(x=>/[A-Z]/.test(x)&&x===x.toUpperCase());
+      R.rhythm.push([sy.map((x,m)=>m===k?"*"+x.toUpperCase()+"*":x.toLowerCase()).join("-"),z,`重音在第 ${k+1} 個音節（共 ${sy.length} 個）：重音音節唸得更大聲、更長、音高更高，其他音節輕而短。`,"",e]);
+      const hs=Hn.filter(([r])=>r.test(e)).slice(0,3).map(x=>x[1]);
+      R.sound.push([e.replace(/th|v|tion|sion|cian|cious|ph|ch/gi,"*$&*"),z,`音節：${sy.join("-").toLowerCase()}。`+(hs.length?hs.join("；")+"。":"先慢速逐音節唸，再連成單字。"),""]);
+      one.push(j%2?[`*${cap(e)}*.`,z+"。","單字回答：語調下降，表示肯定、確定。","↘"]:[`*${cap(e)}*?`,z+"？","單字疑問或確認：語調上揚，表示驚訝或詢問。","↗"]);
+    });
+    for(let t=0;t<w.length;t+=3){const [a,b,c]=w.slice(t,t+3);S.push([`*${a[0]}*, *${b[0]}*, or *${c[0]}*?`,`${a[1]}、${b[1]}還是${c[1]}？`,"列舉：前面的項目語調上揚，最後一項下降。","↗ ↗ ↘"])}
+  });
+  const O=["first","second","third","fourth","fifth"],W=[];
+  WD.forEach(g=>g.split(";").forEach(q=>{const [e,z,y]=q.split("|"),sy=y.split("-"),k=sy.findIndex(x=>/[A-Z]/.test(x)&&x===x.toUpperCase());
+    W.push({e,z,k,n:sy.length,i:W.length,d:sy.map((x,m)=>m===k?"*"+x.toUpperCase()+"*":x.toLowerCase()).join("-"),h:e.replace(/th|v|tion|sion|cian|cious|ph|ch/gi,"*$&*")})}));
+  const SF=[x=>[`Please say "${x}" once more, slowly and clearly.`,z=>`請再慢慢、清楚地說一次「${z}」。`],x=>[`I can say "${x}" three times without making a single mistake.`,z=>`我可以把「${z}」連說三次而不出任何錯。`],x=>[`Listen to the word "${x}", and then repeat it after me.`,z=>`仔細聽「${z}」這個字，然後跟著我唸一次。`]];
+  [0,1,2].forEach(f=>W.slice(0,f<2?150:50).forEach(x=>R.sound.push([SF[f](x.h)[0],SF[f](x.h)[1](x.z),R.sound[x.i][2],""])));
+  const RF=[(d,x)=>[`Say "${d}" with strong stress on the ${O[x.k]} syllable, and keep the others short.`,`說「${x.z}」時，第 ${x.k+1} 個音節要重，其他音節要短而輕。`],(d,x)=>[`In "${d}", the ${O[x.k]} syllable is louder, longer, and higher in pitch than the rest.`,`在「${x.z}」中，第 ${x.k+1} 個音節比其他音節更大聲、更長、音高更高。`],(d,x)=>[`Clap ${x.n} ${x.n>1?"times":"time"} for the word "${d}", and clap loudest on the ${O[x.k]} beat.`,`為「${x.z}」拍 ${x.n} 下手，並在第 ${x.k+1} 拍拍得最大聲。`]];
+  [0,1,2].forEach(f=>W.slice(0,f<2?150:50).forEach(x=>R.rhythm.push([RF[f](x.d,x)[0],RF[f](x.d,x)[1],R.rhythm[x.i][2],"",RF[f](x.e,x)[0]])));
+  R.into=S.concat(one,W.map(x=>[`Did you say "*${x.e}*", or did you say something else?`,`你說的是「${x.z}」，還是說了別的？`,"選擇問句：前半句語調上揚，後半句下降。","↗ ↘"]),W.map(x=>[`Yes, I said "*${x.e}*", and I meant exactly what I said.`,`是的，我說的是「${x.z}」，而且我的意思正是如此。`,"肯定回答：Yes 後稍停，逗號處略上揚，句尾下降。","↗ ↗ ↘"]));
+  return R;
+}
+const BW=words();
+const LV={base:{sound:{n:"發音",l:"（進階單字）",items:BW.sound},into:{n:"語調",l:"（進階單字）",items:BW.into},rhythm:{n:"重音",l:"（進階單字）",items:BW.rhythm}},hs:pack("hs"),uni:pack("uni")};let D=LV.base,lv="base",myText="";
 let cat="sound",i=0,rate=0.85,rec=null,chunks=[],done={},sc={};
 const $=id=>document.getElementById(id);
-function save(){try{localStorage.setItem("pc5",JSON.stringify({lv,cat,i,done,sc}))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem("pc5")||"null");if(!s)return;if(LV[s.lv]){lv=s.lv;D=LV[lv]}if(D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1)}done=s.done||{};sc=s.sc||{}}catch(e){}}
+function save(){try{localStorage.setItem("pc7",JSON.stringify({lv,cat,i,done,sc}))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem("pc7")||"null");if(!s)return;if(LV[s.lv]){lv=s.lv;D=LV[lv]}if(D[s.cat]){cat=s.cat;i=Math.min(s.i||0,D[cat].items.length-1)}done=s.done||{};sc=s.sc||{}}catch(e){}}
 function cnt(k){return Object.keys(done).filter(x=>x.startsWith(k)&&done[x]).length}
 function render(){
   const L=D[cat].items,it=L[i];
-  $("lvs").innerHTML=[["base","基礎複合句"],["hs","高中進階"],["uni","大學英文系"],["my","我的文章"]].map(([k,n])=>`<button class="${k===lv?"on":""}" data-l="${k}">${n}</button>`).join("");
+  $("lvs").innerHTML=[["base","進階單字"],["hs","高中進階"],["uni","大學英文系"],["my","我的文章"]].map(([k,n])=>`<button class="${k===lv?"on":""}" data-l="${k}">${n}</button>`).join("");
   $("tabs").innerHTML=Object.keys(D).map(k=>`<button class="${k===cat?"on":""}" data-k="${k}">${D[k].n}</button>`).join("");
   const emp=lv==="my"&&!L.length;
   $("ed").hidden=lv!=="my";if(lv==="my")$("txt").value=myText;
@@ -274,10 +185,11 @@ function render(){
   $("jump").innerHTML=L.map((x,n)=>`<option value="${n}" ${n===i?"selected":""}>${done[cat+n]?"✓ ":""}${n+1}. ${plain(x[0]).slice(0,30)}</option>`).join("");
   $("res").innerHTML="";$("aud").hidden=true;save();
 }
+const sp=()=>{const t=D[cat].items[i];return t[4]||plain(t[0])};
 function speak(){
   if(!window.speechSynthesis){$("res").textContent="此瀏覽器不支援語音朗讀，請改用 Safari（iPhone）或 Chrome（Android）直接開啟網址。";return}
   speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(plain(D[cat].items[i][0]));
+  const u=new SpeechSynthesisUtterance(sp());
   u.lang="en-US";u.rate=rate;
   const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.replace("_","-")==="en-US");if(v)u.voice=v;
   speechSynthesis.speak(u);
@@ -303,7 +215,7 @@ function score(){
   $("res").textContent="🎧 請開始唸…";
   r.onresult=e=>{
     const said=e.results[0][0].transcript.toLowerCase().replace(/[^a-z' ]/g,"").split(/\s+/);
-    const target=plain(D[cat].items[i][0]).split(/\s+/);
+    const target=sp().split(/\s+/);
     let hit=0;
     const out=target.map(w=>{const c=w.toLowerCase().replace(/[^a-z']/g,"");
       const ok=said.includes(c);if(ok)hit++;return `<span class="${ok?"ok":"no"}">${w}</span>`}).join(" ");
